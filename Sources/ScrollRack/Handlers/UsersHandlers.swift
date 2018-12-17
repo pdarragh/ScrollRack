@@ -36,9 +36,9 @@ private func getUserHandler(request: HTTPRequest, response: HTTPResponse) -> () 
 }
 
 func getUsersRoutes() -> Routes {
-    var usersRoutes = Routes()
-    usersRoutes.add(method: .get, uri: "/users", handler: getUsersHandler)
-    usersRoutes.add(method: .post, uri: "/users", handler: postUsersHandler)
-    usersRoutes.add(method: .get, uri: "/users/{id}", handler: getUserHandler)
-    return usersRoutes
+    var routes = Routes()
+    routes.add(method: .get, uri: "/users", handler: getUsersHandler)
+    routes.add(method: .post, uri: "/users", handler: postUsersHandler)
+    routes.add(method: .get, uri: "/users/{id}", handler: getUserHandler)
+    return routes
 }
