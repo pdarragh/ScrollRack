@@ -24,7 +24,7 @@ private func postUsersHandler(request: HTTPRequest, response: HTTPResponse) -> (
 }
 
 private func getUserHandler(request: HTTPRequest, response: HTTPResponse) -> () {
-    let user_id = extractUrlVariable("id", fromRequest: request)
+    let user_id = extractUrlVariable("user_id", fromRequest: request)
 
     let responseDict = [
         "user_id": "\(user_id)",
@@ -34,7 +34,7 @@ private func getUserHandler(request: HTTPRequest, response: HTTPResponse) -> () 
 }
 
 private func putUserHandler(request: HTTPRequest, response: HTTPResponse) -> () {
-    let user_id = extractUrlVariable("id", fromRequest: request)
+    let user_id = extractUrlVariable("user_id", fromRequest: request)
 
     let responseDict = [
         "user_id": "\(user_id)",
@@ -44,7 +44,7 @@ private func putUserHandler(request: HTTPRequest, response: HTTPResponse) -> () 
 }
 
 private func deleteUserHandler(request: HTTPRequest, response: HTTPResponse) -> () {
-    let user_id = extractUrlVariable("id", fromRequest: request)
+    let user_id = extractUrlVariable("user_id", fromRequest: request)
 
     let responseDict = [
         "user_id": "\(user_id)",
@@ -57,8 +57,8 @@ func getUsersRoutes() -> Routes {
     var routes = Routes()
     routes.add(method: .get, uri: "/users", handler: getUsersHandler)
     routes.add(method: .post, uri: "/users", handler: postUsersHandler)
-    routes.add(method: .get, uri: "/users/{id}", handler: getUserHandler)
-    routes.add(method: .put, uri: "/users/{id}", handler: putUserHandler)
-    routes.add(method: .delete, uri: "/users/{id}", handler: deleteUserHandler)
+    routes.add(method: .get, uri: "/users/{user_id}", handler: getUserHandler)
+    routes.add(method: .put, uri: "/users/{user_id}", handler: putUserHandler)
+    routes.add(method: .delete, uri: "/users/{user_id}", handler: deleteUserHandler)
     return routes
 }
