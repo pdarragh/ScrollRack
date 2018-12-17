@@ -35,10 +35,36 @@ private func getUserHandler(request: HTTPRequest, response: HTTPResponse) -> () 
     makeJsonResponseBody(fromDictionary: responseDict, withResponse: response)
 }
 
+private func putUserHandler(request: HTTPRequest, response: HTTPResponse) -> () {
+    guard let user_id = request.urlVariables["id"] else {
+        fatalError("No user ID given.")
+    }
+
+    let responseDict = [
+        "user_id": "\(user_id)",
+    ]
+
+    makeJsonResponseBody(fromDictionary: responseDict, withResponse: response)
+}
+
+private func deleteUserHandler(request: HTTPRequest, response: HTTPResponse) -> () {
+    guard let user_id = request.urlVariables["id"] else {
+        fatalError("No user ID given.")
+    }
+
+    let responseDict = [
+        "user_id": "\(user_id)",
+    ]
+
+    makeJsonResponseBody(fromDictionary: responseDict, withResponse: response)
+}
+
 func getUsersRoutes() -> Routes {
     var routes = Routes()
     routes.add(method: .get, uri: "/users", handler: getUsersHandler)
     routes.add(method: .post, uri: "/users", handler: postUsersHandler)
     routes.add(method: .get, uri: "/users/{id}", handler: getUserHandler)
+    routes.add(method: .put, uri: "/users/{id}", handler: putUserHandler)
+    routes.add(method: .delete, uri: "/users/{id}", handler: deleteUserHandler)
     return routes
 }
