@@ -20,4 +20,11 @@ func makeJsonResponseBody(fromDictionary dict: JSON, withResponse response: HTTP
     response.completed()
 }
 
+func extractUrlVariable(_ variable: String, fromRequest request: HTTPRequest) -> String {
+    guard let value = request.urlVariables[variable] else {
+        fatalError("No such variable available in request: \(variable)")
+    }
+    return value
+}
+
 typealias JSON = [String: Any]

@@ -24,9 +24,7 @@ private func postUsersHandler(request: HTTPRequest, response: HTTPResponse) -> (
 }
 
 private func getUserHandler(request: HTTPRequest, response: HTTPResponse) -> () {
-    guard let user_id = request.urlVariables["id"] else {
-        fatalError("No user ID given.")
-    }
+    let user_id = extractUrlVariable("id", fromRequest: request)
 
     let responseDict = [
         "user_id": "\(user_id)",
@@ -36,9 +34,7 @@ private func getUserHandler(request: HTTPRequest, response: HTTPResponse) -> () 
 }
 
 private func putUserHandler(request: HTTPRequest, response: HTTPResponse) -> () {
-    guard let user_id = request.urlVariables["id"] else {
-        fatalError("No user ID given.")
-    }
+    let user_id = extractUrlVariable("id", fromRequest: request)
 
     let responseDict = [
         "user_id": "\(user_id)",
@@ -48,9 +44,7 @@ private func putUserHandler(request: HTTPRequest, response: HTTPResponse) -> () 
 }
 
 private func deleteUserHandler(request: HTTPRequest, response: HTTPResponse) -> () {
-    guard let user_id = request.urlVariables["id"] else {
-        fatalError("No user ID given.")
-    }
+    let user_id = extractUrlVariable("id", fromRequest: request)
 
     let responseDict = [
         "user_id": "\(user_id)",
