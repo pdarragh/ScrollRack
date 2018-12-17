@@ -6,6 +6,7 @@ import PerfectHTTPServer
 var apiRoutesV1 = Routes(baseUri: "/v1")
 apiRoutesV1.add(getUsersRoutes())
 apiRoutesV1.add(getUserCollectionsRoutes())
+apiRoutesV1.add(getUserDecksRoutes())
 
 var apiRoutes = Routes(baseUri: "/api")
 apiRoutes.add(apiRoutesV1)
