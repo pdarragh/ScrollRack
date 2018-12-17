@@ -65,11 +65,11 @@ private func deleteUserCollectionHandler(request: HTTPRequest, response: HTTPRes
 }
 
 func getUserCollectionsRoutes() -> Routes {
-    var routes = Routes()
-    routes.add(method: .get, uri: "/users/{user_id}/collections", handler: getUserCollectionsHandler)
-    routes.add(method: .post, uri: "/users/{user_id}/collections", handler: postUserCollectionsHandler)
-    routes.add(method: .get, uri: "/users/{user_id}/collections/{collection_id}", handler: getUserCollectionHandler)
-    routes.add(method: .put, uri: "/users/{user_id}/collections/{collection_id}", handler: putUserCollectionHandler)
-    routes.add(method: .delete, uri: "/users/{user_id}/collections/{collection_id}", handler: deleteUserCollectionHandler)
+    var routes = Routes(baseUri: "/users/{user_id}")
+    routes.add(method: .get, uri: "/collections", handler: getUserCollectionsHandler)
+    routes.add(method: .post, uri: "/collections", handler: postUserCollectionsHandler)
+    routes.add(method: .get, uri: "/collections/{collection_id}", handler: getUserCollectionHandler)
+    routes.add(method: .put, uri: "/collections/{collection_id}", handler: putUserCollectionHandler)
+    routes.add(method: .delete, uri: "/collections/{collection_id}", handler: deleteUserCollectionHandler)
     return routes
 }
