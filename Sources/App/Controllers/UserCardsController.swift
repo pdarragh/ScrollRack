@@ -11,8 +11,12 @@ import Vapor
 final class UserCardsController {
     func index(_ req: Request) throws -> Future<[Card]> {
         let userId = try req.parameters.next(Int.self)
-        return req.withPooledConnection(to: .mysql) { conn in
-            return Card.query(on: conn).filter(\.user_id == userId).all()
+        return Card.query(on: req).filter(\.user_id == userId).all()
+    }
+
+    func create(_ req: Request) throws -> Future<Card> {
+        return try req.content.decode(Card.self).flatMap { card in
+            return card.save(on: req)
         }
     }
 }

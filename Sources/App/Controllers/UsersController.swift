@@ -15,9 +15,6 @@ final class UsersController {
 
     func find(_ req: Request) throws -> Future<User> {
         let userId = try req.parameters.next(Int.self)
-
-        return req.withPooledConnection(to: .mysql) { conn in
-            return User.find(userId, on: conn).unwrap(or: Abort(.notFound))
-        }
+        return User.find(userId, on: req).unwrap(or: Abort(.notFound))
     }
 }
