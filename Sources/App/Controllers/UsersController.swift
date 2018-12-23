@@ -13,9 +13,15 @@ final class UsersController {
         return User.query(on: req).all()
     }
 
-    func create(_ req: Request) throws -> Future<User> {
-        return try req.content.decode(User.self).flatMap { user in
-            return user.save(on: req)
+    func create(_ req: Request, newUser user: User) throws -> Future<HTTPResponseStatus> {
+        return User.query(on: req).filter(\.username == user.username).first().flatMap { existingUser in
+            guard existingUser == nil else {
+                print("non-nil existing user")
+                throw Abort(.badRequest, reason: "A user with the given username already exists.")
+            }
+
+            let persistedUser = User(id: nil, username: user.username, pw_hash: user.pw_hash, pw_salt: user.pw_salt, email: user.email)
+            return persistedUser.save(on: req).transform(to: HTTPResponseStatus.created)
         }
     }
 
