@@ -18,6 +18,7 @@ public func routes(_ router: Router) throws {
         api.group("v1") { v1 in
             v1.group("users") { users in
                 users.get(use: usersController.index)
+                users.post(use: usersController.create)
 
                 users.group(Int.parameter) { user in
                     user.get(use: usersController.find)
