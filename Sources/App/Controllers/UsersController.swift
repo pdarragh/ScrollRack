@@ -13,7 +13,7 @@ final class UsersController {
         return User.query(on: req).all()
     }
 
-    func create(_ req: Request, newUser user: User) throws -> Future<HTTPResponseStatus> {
+    func create(_ req: Request, newUser user: User) throws -> Future<User> {
         return User.query(on: req).filter(\.username == user.username).first().flatMap { existingUser in
             guard existingUser == nil else {
                 print("non-nil existing user")
@@ -21,7 +21,7 @@ final class UsersController {
             }
 
             let persistedUser = User(id: nil, username: user.username, pw_hash: user.pw_hash, pw_salt: user.pw_salt, email: user.email)
-            return persistedUser.save(on: req).transform(to: HTTPResponseStatus.created)
+            return persistedUser.save(on: req)
         }
     }
 
