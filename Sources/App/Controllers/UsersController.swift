@@ -16,7 +16,6 @@ final class UsersController {
     func create(_ req: Request, newUser user: User) throws -> Future<User> {
         return User.query(on: req).filter(\.username == user.username).first().flatMap { existingUser in
             guard existingUser == nil else {
-                print("non-nil existing user")
                 throw Abort(.badRequest, reason: "A user with the given username already exists.")
             }
 
