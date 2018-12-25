@@ -2,13 +2,6 @@ import Vapor
 
 /// Register your application's routes here.
 public func routes(_ router: Router) throws {
-    // Configure controllers.
-    let userCardsController = UserCardsController()
-    let userCollectionsController = UserCollectionsController()
-    let userDeckFoldersController = UserDeckFoldersController()
-    let userDecksController = UserDecksController()
-    let usersController = UsersController()
-
     // Register routes.
     router.get { req in
         return "Hello, world!"
@@ -17,26 +10,30 @@ public func routes(_ router: Router) throws {
     router.group("api") { api in
         api.group("v1") { v1 in
             v1.group("users") { users in
-                users.get(use: usersController.index)
-                users.post(User.self, use: usersController.create)
+                users.get(use: UsersController.index)
+                users.post(User.self, use: UsersController.create)
 
                 users.group(Int.parameter) { user in
-                    user.get(use: usersController.find)
+                    user.get(use: UsersController.find)
 
                     user.group("cards") { cards in
-                        cards.get(use: userCardsController.index)
+                        cards.get(use: UserCardsController.index)
+                        cards.post(Card.self, use: UserCardsController.create)
                     }
 
                     user.group("collections") { collections in
-                        collections.get(use: userCollectionsController.index)
+                        collections.get(use: UserCollectionsController.index)
+                        collections.post(Collection.self, use: UserCollectionsController.create)
                     }
 
                     user.group("deck_folders") { deckFolders in
-                        deckFolders.get(use: userDeckFoldersController.index)
+                        deckFolders.get(use: UserDeckFoldersController.index)
+                        deckFolders.post(DeckFolder.self, use: UserDeckFoldersController.create)
                     }
 
                     user.group("decks") { decks in
-                        decks.get(use: userDecksController.index)
+                        decks.get(use: UserDecksController.index)
+                        decks.post(Deck.self, use: UserDecksController.create)
                     }
                 }
             }
