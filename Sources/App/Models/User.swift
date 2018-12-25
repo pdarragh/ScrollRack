@@ -5,6 +5,7 @@
 //  Created by Pierce Darragh on 12/17/18.
 //
 
+import Authentication
 import FluentMySQL
 import Vapor
 
@@ -28,6 +29,7 @@ final class User: MySQLModel {
 
 extension User: Content {}
 extension User: Parameter {}
+extension User: SessionAuthenticatable {}
 
 struct CreateUser: MySQLMigration {
     static func prepare(on conn: MySQLConnection) -> EventLoopFuture<Void> {

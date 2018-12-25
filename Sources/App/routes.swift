@@ -1,7 +1,8 @@
+import Authentication
 import Vapor
 
 /// Register your application's routes here.
-public func routes(_ router: Router) throws {
+func buildRoutesForRouter(_ router: Router, withSession session: AuthenticationSessionsMiddleware<User>) throws {
     // Register routes.
     router.get { req in
         return "Hello, world!"
