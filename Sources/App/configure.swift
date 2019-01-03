@@ -13,12 +13,9 @@ public func configure(_ config: inout Config, _ env: inout Environment, _ servic
     middlewares.use(ErrorMiddleware.self) // Catches errors and converts to HTTP response
     services.register(middlewares)
 
-    /// Create authentication session middleware.
-    let session = User.authSessionsMiddleware()
-
     /// Register routes to the router.
     let router = EngineRouter.default()
-    try buildRoutesForRouter(router, withSession: session)
+    try buildRoutesForRouter(router)
     services.register(router, as: Router.self)
 
     /// Extract the database password from the environment.
@@ -50,6 +47,7 @@ public func configure(_ config: inout Config, _ env: inout Environment, _ servic
     migrations.add(migration: CreateDeckFolder.self, database: .mysql)
     migrations.add(migration: CreateDeck.self, database: .mysql)
     migrations.add(migration: CreateUser.self, database: .mysql)
+    migrations.add(migration: CreateUserToken.self, database: .mysql)
     services.register(migrations)
 
     /// Set default databases.
@@ -58,4 +56,5 @@ public func configure(_ config: inout Config, _ env: inout Environment, _ servic
     DeckFolder.defaultDatabase = .mysql
     Deck.defaultDatabase = .mysql
     User.defaultDatabase = .mysql
+    UserToken.defaultDatabase = .mysql
 }

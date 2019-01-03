@@ -2,11 +2,17 @@ import Authentication
 import Vapor
 
 /// Register your application's routes here.
-func buildRoutesForRouter(_ router: Router, withSession session: AuthenticationSessionsMiddleware<User>) throws {
+func buildRoutesForRouter(_ router: Router) throws {
     // Register routes.
     router.get { req in
         return "Hello, world!"
     }
+
+    let basic = router.grouped(User.basicAuthMiddleware(using: BCryptDigest()))
+    basic.post("login", use: UsersController.login)
+
+    let bearer = router.grouped(User.tokenAuthMiddleware())
+    bearer.get("profile", use: UsersController.findFull)
 
     router.group("api") { api in
         api.group("v1") { v1 in
