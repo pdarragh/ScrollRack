@@ -20,17 +20,26 @@ final class UsersController {
         return User.query(on: req).decode(data: User.Public.self).all()
     }
 
-    static func create(_ req: Request, newUser user: User) throws -> Future<User.Public> {
+    static func create(_ req: Request, newUserRequest user: CreateUserRequest) throws -> Future<User.Public> {
         return User.query(on: req).filter(\.username == user.username).first().flatMap { existingUser in
             guard existingUser == nil else {
                 throw Abort(.badRequest, reason: "A user with the given username already exists.")
             }
 
-            user.pw_hash = try BCrypt.hash(user.pw_hash)
-            user.pw_salt = try BCrypt.hash(user.pw_salt)
+            guard user.password == user.passwordVerification else {
+                throw Abort(.badRequest, reason: "Given passwords did not match.")
+            }
 
-            let persistedUser = User(id: nil, username: user.username, pw_hash: user.pw_hash, pw_salt: user.pw_salt, email: user.email)
-            return persistedUser.save(on: req).toPublic()
+            let count = 16
+            var pw_salt_data = Data(count: count)
+            let _ = pw_salt_data.withUnsafeMutableBytes { mutableBytes in
+                SecRandomCopyBytes(kSecRandomDefault, count, mutableBytes)
+            }
+            let pw_salt = try BCrypt.hash(pw_salt_data.base64EncodedString())
+
+            let pw_hash = try BCrypt.hash(user.password)  // TODO: Incorporate salt with hash.
+
+            return User(id: nil, username: user.username, pw_hash: pw_hash, pw_salt: pw_salt, email: user.email).save(on: req).toPublic()
         }
     }
 
@@ -50,4 +59,11 @@ final class UsersController {
     static func verifyUserById(_ id: Int, withRequest req: Request) throws -> Future<User> {
         return User.find(id, on: req).unwrap(or: Abort(.notFound, reason: "No user with ID: \(id)."))
     }
+}
+
+struct CreateUserRequest: Content {
+    var username: String
+    var password: String
+    var passwordVerification: String
+    var email: String
 }

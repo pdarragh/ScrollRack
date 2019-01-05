@@ -18,7 +18,7 @@ func buildRoutesForRouter(_ router: Router) throws {
         api.group("v1") { v1 in
             v1.group("users") { users in
                 users.get(use: UsersController.index)
-                users.post(User.self, use: UsersController.create)
+                users.post(CreateUserRequest.self, use: UsersController.create)
 
                 users.group(Int.parameter) { user in
                     user.get(use: UsersController.find)
