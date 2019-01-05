@@ -8,39 +8,42 @@ func buildRoutesForRouter(_ router: Router) throws {
         return "Hello, world!"
     }
 
-    let basic = router.grouped(User.basicAuthMiddleware(using: BCryptDigest()))
-    basic.post("login", use: UsersController.login)
-
-    let bearer = router.grouped(User.tokenAuthMiddleware())
-    bearer.get("profile", use: UsersController.findFull)
-
     router.group("api") { api in
         api.group("v1") { v1 in
-            v1.group("users") { users in
-                users.get(use: UsersController.index)
-                users.post(CreateUserRequest.self, use: UsersController.create)
+            // MARK: The /login endpoint provides authentication.
+            v1.group(User.basicAuthMiddleware(using: BCryptDigest())) { v1Basic in
+                v1Basic.post("login", use: UsersController.login)
+            }
 
-                users.group(Int.parameter) { user in
-                    user.get(use: UsersController.find)
+            v1.group(User.tokenAuthMiddleware()) { v1Auth in
+                // TODO: Remove the /profile endpoint for security.
+                v1Auth.get("profile", use: UsersController.findFull)
 
-                    user.group("cards") { cards in
-                        cards.get(use: UserCardsController.index)
-                        cards.post(Card.self, use: UserCardsController.create)
-                    }
+                v1Auth.group("users") { users in
+                    users.get(use: UsersController.index)
+                    users.post(CreateUserRequest.self, use: UsersController.create)
 
-                    user.group("collections") { collections in
-                        collections.get(use: UserCollectionsController.index)
-                        collections.post(Collection.self, use: UserCollectionsController.create)
-                    }
+                    users.group(Int.parameter) { user in
+                        user.get(use: UsersController.find)
 
-                    user.group("deck_folders") { deckFolders in
-                        deckFolders.get(use: UserDeckFoldersController.index)
-                        deckFolders.post(DeckFolder.self, use: UserDeckFoldersController.create)
-                    }
+                        user.group("cards") { cards in
+                            cards.get(use: UserCardsController.index)
+                            cards.post(Card.self, use: UserCardsController.create)
+                        }
 
-                    user.group("decks") { decks in
-                        decks.get(use: UserDecksController.index)
-                        decks.post(Deck.self, use: UserDecksController.create)
+                        user.group("collections") { collections in
+                            collections.get(use: UserCollectionsController.index)
+                            collections.post(Collection.self, use: UserCollectionsController.create)
+                        }
+
+                        user.group("deck_folders") { deckFolders in
+                            deckFolders.get(use: UserDeckFoldersController.index)
+                            deckFolders.post(DeckFolder.self, use: UserDeckFoldersController.create)
+                        }
+
+                        user.group("decks") { decks in
+                            decks.get(use: UserDecksController.index)
+                        }
                     }
                 }
             }
