@@ -48,6 +48,7 @@ public func configure(_ config: inout Config, _ env: inout Environment, _ servic
     migrations.add(migration: CreateDeck.self, database: .mysql)
     migrations.add(migration: CreateUser.self, database: .mysql)
     migrations.add(migration: CreateUserToken.self, database: .mysql)
+    migrations.add(migration: CreateUserCardIndex.self, database: .mysql)
     services.register(migrations)
 
     /// Set default databases.
@@ -57,4 +58,5 @@ public func configure(_ config: inout Config, _ env: inout Environment, _ servic
     Deck.defaultDatabase = .mysql
     User.defaultDatabase = .mysql
     UserToken.defaultDatabase = .mysql
+    UserCardIndex.defaultDatabase = .mysql
 }
