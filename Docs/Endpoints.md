@@ -16,6 +16,8 @@ There are multiple kinds of objects in the ScrollRack API:
 
 - `/api/v1/users` — all the users of ScrollRack
 - `/api/v1/users/{id}` — a specific user
+- `/api/v1/users/{id}/cards` — all of a user's cards
+- `/api/v1/users/{id}/cards/{id}` — a specific card
 - `/api/v1/users/{id}/collections` — all of a user's collections
 - `/api/v1/users/{id}/collections/{id}` — a specific collection of cards
 - `/api/v1/users/{id}/decks` — all of a user's decks (a flat list that disregards folders)
@@ -30,6 +32,11 @@ There are multiple kinds of objects in the ScrollRack API:
 - `HTTP GET    /api/v1/users/{id}` — get info about specific user
 - `HTTP PUT    /api/v1/users/{id}` — update info about specific user
 - `HTTP DELETE /api/v1/users/{id}` — delete specific user
+- `HTTP GET    /api/v1/users/{id}/cards` — get list of all cards
+- `HTTP POST   /api/v1/users/{id}/cards` — create new card
+- `HTTP GET    /api/v1/users/{id}/cards/{id}` — get info about specific card
+- `HTTP PUT    /api/v1/users/{id}/cards/{id}` — update info about specific card
+- `HTTP DELETE /api/v1/users/{id}/cards/{id}` — delete specific card
 - `HTTP GET    /api/v1/users/{id}/collections` — get list of all collections
 - `HTTP POST   /api/v1/users/{id}/collections` — create new collection
 - `HTTP GET    /api/v1/users/{id}/collections/{id}` — get info about specific collection
