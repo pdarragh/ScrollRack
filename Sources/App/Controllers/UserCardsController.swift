@@ -31,6 +31,13 @@ final class UserCardsController {
             }
         }
     }
+
+    static func find(_ req: Request) throws -> Future<Card> {
+        let userID = try req.parameters.next(Int.self)
+        let cardID = try req.parameters.next(Int.self)
+
+        return Card.query(on: req).filter(\.user_id == userID).filter(\.user_index == cardID).first().unwrap(or: Abort(.badRequest, reason: "No card with ID \(cardID) belonging to user with ID \(userID)."))
+    }
 }
 
 struct CreateCardRequest: Content {

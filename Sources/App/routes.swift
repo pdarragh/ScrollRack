@@ -29,6 +29,10 @@ func buildRoutesForRouter(_ router: Router) throws {
                         user.group("cards") { cards in
                             cards.get(use: UserCardsController.index)
                             cards.post(CreateCardRequest.self, use: UserCardsController.create)
+
+                            cards.group(Int.parameter) { card in
+                                card.get(use: UserCardsController.find)
+                            }
                         }
 
                         user.group("collections") { collections in
