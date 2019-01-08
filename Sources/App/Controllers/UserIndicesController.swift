@@ -9,7 +9,7 @@ import Fluent
 import Vapor
 
 final class UserIndicesController {
-    static func createCardIndex(_ req: Request, forUser userID: Int, withNextIndex nextIndex: Int = 0) throws -> Future<UserCardIndex> {
+    static func createCardIndex(_ req: Request, forUser userID: Int, withNextIndex nextIndex: Int = 1) throws -> Future<UserCardIndex> {
         return UserCardIndex(id: nil, user_id: userID, next_index: nextIndex).save(on: req)
     }
 
