@@ -15,14 +15,12 @@ final class User: MySQLModel {
     var id: Int?
     var username: String
     var pw_hash: String
-    var pw_salt: String
     var email: String
 
-    init(id: Int? = nil, username: String, pw_hash: String, pw_salt: String, email: String) {
+    init(id: Int? = nil, username: String, pw_hash: String, email: String) {
         self.id = id
         self.username = username
         self.pw_hash = pw_hash
-        self.pw_salt = pw_salt
         self.email = email
     }
 
@@ -75,7 +73,6 @@ struct CreateUser: MySQLMigration {
             builder.field(for: \.id, isIdentifier: true)
             builder.field(for: \.username, type: .varchar(32))
             builder.field(for: \.pw_hash, type: .binary(32))
-            builder.field(for: \.pw_salt, type: .binary(32))
             builder.field(for: \.email, type: .varchar(320))
 
             builder.unique(on: \.username)

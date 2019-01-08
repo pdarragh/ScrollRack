@@ -30,16 +30,9 @@ final class UsersController {
                 throw Abort(.badRequest, reason: "Given passwords did not match.")
             }
 
-            let count = 16
-            var pw_salt_data = Data(count: count)
-            let _ = pw_salt_data.withUnsafeMutableBytes { mutableBytes in
-                SecRandomCopyBytes(kSecRandomDefault, count, mutableBytes)
-            }
-            let pw_salt = try BCrypt.hash(pw_salt_data.base64EncodedString())
+            let pw_hash = try BCrypt.hash(user.password)
 
-            let pw_hash = try BCrypt.hash(user.password)  // TODO: Incorporate salt with hash.
-
-            return User(id: nil, username: user.username, pw_hash: pw_hash, pw_salt: pw_salt, email: user.email).save(on: req).toPublic()
+            return User(id: nil, username: user.username, pw_hash: pw_hash, email: user.email).save(on: req).toPublic()
         }
     }
 
