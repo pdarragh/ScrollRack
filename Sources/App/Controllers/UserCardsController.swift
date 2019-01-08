@@ -38,10 +38,31 @@ final class UserCardsController {
 
         return Card.query(on: req).filter(\.user_id == userID).filter(\.user_index == cardID).first().unwrap(or: Abort(.badRequest, reason: "No card with ID \(cardID) belonging to user with ID \(userID)."))
     }
+
+    static func update(_ req: Request, updatedCardRequest updatedCard: UpdateCardRequest) throws -> Future<Card> {
+        let _ = try req.requireAuthenticated(User.self)
+
+        return try find(req).flatMap { originalCard in
+            return Card(id: originalCard.id,
+                        scryfall_id: originalCard.scryfall_id,
+                        play_condition: updatedCard.play_condition ?? originalCard.play_condition,
+                        foil: updatedCard.foil ?? originalCard.foil,
+                        added: originalCard.added,
+                        modified: Date(),
+                        user_id: originalCard.user_id,
+                        user_index: originalCard.user_index)
+                .update(on: req, originalID: originalCard.id)
+        }
+    }
 }
 
 struct CreateCardRequest: Content {
     var scryfall_id: UUID
     var play_condition: Int
     var foil: Bool
+}
+
+struct UpdateCardRequest: Content {
+    var play_condition: Int?
+    var foil: Bool?
 }

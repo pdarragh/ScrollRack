@@ -32,6 +32,7 @@ func buildRoutesForRouter(_ router: Router) throws {
 
                             cards.group(Int.parameter) { card in
                                 card.get(use: UserCardsController.find)
+                                card.put(UpdateCardRequest.self, use: UserCardsController.update)
                             }
                         }
 
