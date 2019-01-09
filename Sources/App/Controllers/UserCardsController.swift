@@ -54,6 +54,16 @@ final class UserCardsController {
                 .update(on: req, originalID: originalCard.id)
         }
     }
+
+    static func delete(_ req: Request) throws -> Future<String> {
+        let _ = try req.requireAuthenticated(User.self)
+
+        return try find(req).flatMap { card in
+            return card.delete(on: req).map {
+                return "Deleted card."
+            }
+        }
+    }
 }
 
 struct CreateCardRequest: Content {
