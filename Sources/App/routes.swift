@@ -50,6 +50,13 @@ func buildRoutesForRouter(_ router: Router) throws {
 
                         user.group("decks") { decks in
                             decks.get(use: UserDecksController.index)
+                            decks.post(CreateDeckRequest.self, use: UserDecksController.create)
+
+                            decks.group(Int.parameter) { deck in
+                                deck.get(use: UserDecksController.find)
+                                deck.put(UpdateDeckRequest.self, use: UserDecksController.update)
+                                deck.delete(use: UserDecksController.delete)
+                            }
                         }
 
                         user.group("deck_folders") { deckFolders in
