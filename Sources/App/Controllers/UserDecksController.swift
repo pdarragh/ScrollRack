@@ -26,7 +26,7 @@ final class UserDecksController {
         }
     }
 
-    private static func find(_ req: Request, userID: Int, deckID: Int) throws -> Future<Deck> {
+    static func find(_ req: Request, userID: Int, deckID: Int) throws -> Future<Deck> {
         return Deck.query(on: req).filter(\.user_id == userID).filter(\.user_index == deckID).first().unwrap(or: Abort(.badRequest, reason: "No deck with ID \(deckID) belonging to user with ID \(userID)."))
     }
 

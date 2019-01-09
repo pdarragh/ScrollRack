@@ -26,7 +26,7 @@ final class UserDeckFoldersController {
         }
     }
 
-    private static func find(_ req: Request, userID: Int, deckFolderID: Int) throws -> Future<DeckFolder> {
+    static func find(_ req: Request, userID: Int, deckFolderID: Int) throws -> Future<DeckFolder> {
         return DeckFolder.query(on: req).filter(\.user_id == userID).filter(\.user_index == deckFolderID).first().unwrap(or: Abort(.badRequest, reason: "No deck folder with ID \(deckFolderID) belonging to user with ID \(userID)."))
     }
 
@@ -40,7 +40,22 @@ final class UserDeckFoldersController {
         let (userID, deckFolderID) = try ControllersCommon.extractUserIDAndElementIDWithAuthentication(req, failureReason: .notAuthorized)
 
         return try find(req, userID: userID, deckFolderID: deckFolderID).flatMap { deckFolder in
-            deckFolder.name = updatedDeckFolder.name
+            if let newName = updatedDeckFolder.new_name {
+                deckFolder.name = newName
+            }
+
+            if let newDeckID = updatedDeckFolder.new_deck_index {
+                _ = try UserDecksController.find(req, userID: userID, deckID: newDeckID).flatMap { deck in
+                    DeckFoldersToDecksPivot(deck_folder_id: deckFolderID, deck_id: deck.id!).save(on: req)
+                }
+            }
+
+            if let newChildFolderID = updatedDeckFolder.new_child_folder_index {
+                _ = try find(req, userID: userID, deckFolderID: newChildFolderID).flatMap { childDeckFolder in
+                    DeckFoldersToSubfoldersPivot(parent_folder_id: deckFolderID, child_folder_id: childDeckFolder.id!).save(on: req)
+                }
+            }
+
             return deckFolder.update(on: req, originalID: deckFolder.id)
         }
     }
@@ -61,5 +76,7 @@ struct CreateDeckFolderRequest: Content {
 }
 
 struct UpdateDeckFolderRequest: Content {
-    var name: String
+    var new_name: String?
+    var new_deck_index: Int?
+    var new_child_folder_index: Int?
 }
