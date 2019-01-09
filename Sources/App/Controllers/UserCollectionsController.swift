@@ -22,7 +22,7 @@ final class UserCollectionsController {
         user.next_collection_index += 1
 
         return user.save(on: req).flatMap { _ in
-            Collection(id: nil, name: newCollectionRequest.name, user_id: user.id!, user_index: index).save(on: req)
+            return Collection(id: nil, name: newCollectionRequest.name, user_id: user.id!, user_index: index).save(on: req)
         }
     }
 

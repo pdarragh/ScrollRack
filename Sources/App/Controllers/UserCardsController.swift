@@ -22,7 +22,7 @@ final class UserCardsController {
         user.next_card_index += 1
 
         return user.save(on: req).flatMap { _ in
-            Card(id: nil, scryfall_id: newCardRequest.scryfall_id, play_condition: newCardRequest.play_condition, foil: newCardRequest.foil, added: Date(), modified: Date(), user_id: user.id!, user_index: index).save(on: req)
+            return Card(id: nil, scryfall_id: newCardRequest.scryfall_id, play_condition: newCardRequest.play_condition, foil: newCardRequest.foil, added: Date(), modified: Date(), user_id: user.id!, user_index: index).save(on: req)
         }
     }
 
