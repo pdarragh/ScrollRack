@@ -26,7 +26,7 @@ final class UserCardsController {
         }
     }
 
-    private static func find(_ req: Request, userID: Int, cardID: Int) throws -> Future<Card> {
+    static func find(_ req: Request, userID: Int, cardID: Int) throws -> Future<Card> {
         return Card.query(on: req).filter(\.user_id == userID).filter(\.user_index == cardID).first().unwrap(or: Abort(.badRequest, reason: "No card with ID \(cardID) belonging to user with ID \(userID)."))
     }
 

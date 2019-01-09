@@ -44,7 +44,16 @@ final class UserCollectionsController {
         let (userID, collectionID) = try ControllersCommon.extractUserIDAndElementIDWithAuthentication(req, failureReason: .notAuthorized)
 
         return try find(req, userID: userID, collectionID: collectionID).flatMap { collection in
-            collection.name = updatedCollection.name
+            if let newName = updatedCollection.new_name {
+                collection.name = newName
+            }
+
+            if let newCardID = updatedCollection.new_card_index {
+                _ = try UserCardsController.find(req, userID: userID, cardID: newCardID).flatMap { card in
+                    CardsToCollectionsPivot(card_id: card.id!, collection_id: collectionID).save(on: req)
+                }
+            }
+
             return collection.update(on: req, originalID: collection.id)
         }
     }
@@ -65,7 +74,8 @@ struct CreateCollectionRequest: Content {
 }
 
 struct UpdateCollectionRequest: Content {
-    var name: String
+    var new_name: String?
+    var new_card_index: Int?
 }
 
 struct CollectionWithCardsResponse: Content {
