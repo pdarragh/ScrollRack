@@ -27,6 +27,12 @@ final class DeckFolder: MySQLModel {
 extension DeckFolder: Content {}
 extension DeckFolder: Parameter {}
 
+extension DeckFolder {
+    var decks: Siblings<DeckFolder, Deck, DeckFoldersToDecksPivot> {
+        return siblings()
+    }
+}
+
 struct CreateDeckFolder: MySQLMigration {
     static func prepare(on conn: MySQLConnection) -> EventLoopFuture<Void> {
         return MySQLDatabase.create(DeckFolder.self, on: conn) { builder in

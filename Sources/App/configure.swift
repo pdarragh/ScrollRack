@@ -49,6 +49,8 @@ public func configure(_ config: inout Config, _ env: inout Environment, _ servic
     migrations.add(migration: CreateUser.self, database: .mysql)
     migrations.add(migration: CreateUserToken.self, database: .mysql)
     migrations.add(migration: CardsToCollectionsPivot.self, database: .mysql)
+    migrations.add(migration: DeckFoldersToDecksPivot.self, database: .mysql)
+    migrations.add(migration: DeckFoldersToSubfoldersPivot.self, database: .mysql)
     services.register(migrations)
 
     /// Set default databases.
@@ -59,4 +61,6 @@ public func configure(_ config: inout Config, _ env: inout Environment, _ servic
     User.defaultDatabase = .mysql
     UserToken.defaultDatabase = .mysql
     CardsToCollectionsPivot.defaultDatabase = .mysql
+    DeckFoldersToDecksPivot.defaultDatabase = .mysql
+    DeckFoldersToSubfoldersPivot.defaultDatabase = .mysql
 }
