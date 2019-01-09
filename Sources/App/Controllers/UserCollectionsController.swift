@@ -10,18 +10,16 @@ import Vapor
 
 final class UserCollectionsController {
     static func index(_ req: Request) throws -> Future<[Collection]> {
-        let userId = try req.parameters.next(Int.self)
+        let userID = try ControllersCommon.extractUserID(req)
 
-        return try UsersController.verifyUserById(userId, withRequest: req).flatMap { _ in
-            return Collection.query(on: req).filter(\.user_id == userId).all()
-        }
+        return Collection.query(on: req).filter(\.user_id == userID).all()
     }
+}
 
-    static func create(_ req: Request, newCollection: Collection) throws -> Future<Collection> {
-        let userId = try req.parameters.next(Int.self)
+struct CreateCollectionRequest: Content {
+    var name: String
+}
 
-        return try UsersController.verifyUserById(userId, withRequest: req).flatMap { _ in
-            return newCollection.save(on: req)
-        }
-    }
+struct UpdateCollectionRequest: Content {
+    var name: String
 }

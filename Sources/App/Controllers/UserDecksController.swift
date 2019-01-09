@@ -10,18 +10,8 @@ import Vapor
 
 final class UserDecksController {
     static func index(_ req: Request) throws -> Future<[Deck]> {
-        let userId = try req.parameters.next(Int.self)
+        let userID = try ControllersCommon.extractUserID(req)
 
-        return try UsersController.verifyUserById(userId, withRequest: req).flatMap { _ in
-            return Deck.query(on: req).filter(\.user_id == userId).all()
-        }
-    }
-
-    static func create(_ req: Request, newDeck: Deck) throws -> Future<Deck> {
-        let userId = try req.parameters.next(Int.self)
-
-        return try UsersController.verifyUserById(userId, withRequest: req).flatMap { _ in
-            return newDeck.save(on: req)
-        }
+        return Deck.query(on: req).filter(\.user_id == userID).all()
     }
 }

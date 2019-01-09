@@ -38,7 +38,7 @@ final class UsersController {
 
     static func find(_ req: Request) throws -> Future<User.Public> {
         let userId = try req.parameters.next(Int.self)
-        return try UsersController.verifyUserById(userId, withRequest: req).toPublic()
+        return try UsersController.verifyUserIDExists(userId, withRequest: req).toPublic()
     }
 
     static func findFull(_ req: Request) throws -> Future<User> {
@@ -49,7 +49,7 @@ final class UsersController {
         return User.find(userID, on: req).unwrap(or: Abort(.notFound, reason: "No user with ID: \(userID)."))
     }
 
-    static func verifyUserById(_ id: Int, withRequest req: Request) throws -> Future<User> {
+    static func verifyUserIDExists(_ id: Int, withRequest req: Request) throws -> Future<User> {
         return User.find(id, on: req).unwrap(or: Abort(.notFound, reason: "No user with ID: \(id)."))
     }
 }

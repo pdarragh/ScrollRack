@@ -10,53 +10,45 @@ import Vapor
 
 final class UserCardsController {
     static func index(_ req: Request) throws -> Future<[Card]> {
-        let userId = try req.parameters.next(Int.self)
+        let userID = try ControllersCommon.extractUserID(req)
 
-        return try UsersController.verifyUserById(userId, withRequest: req).flatMap { _ in
-            return Card.query(on: req).filter(\.user_id == userId).all()
-        }
+        return Card.query(on: req).filter(\.user_id == userID).all()
     }
 
     static func create(_ req: Request, newCardRequest: CreateCardRequest) throws -> Future<Card> {
-        let user = try req.requireAuthenticated(User.self)
-        let userID = try req.parameters.next(Int.self)
+        let user = try ControllersCommon.extractUserWithAuthentication(req, failureReason: .notAuthorized)
 
-        guard user.id == userID else {
-            throw Abort(.unauthorized, reason: "Cannot modify assets of another user.")
-        }
+        let index = user.next_card_index
+        user.next_card_index += 1
 
-        return try UserIndicesController.findOrCreateCardIndex(req, forUser: userID).flatMap { cardIndex in
-            return try UserIndicesController.incrementCardIndex(cardIndex, on: req).flatMap { _ in
-                return Card(id: nil, scryfall_id: newCardRequest.scryfall_id, play_condition: newCardRequest.play_condition, foil: newCardRequest.foil, added: Date(), modified: Date(), user_id: userID, user_index: cardIndex.next_index).save(on: req)
-            }
+        return user.save(on: req).flatMap { _ in
+            Card(id: nil, scryfall_id: newCardRequest.scryfall_id, play_condition: newCardRequest.play_condition, foil: newCardRequest.foil, added: Date(), modified: Date(), user_id: user.id!, user_index: index).save(on: req)
         }
     }
 
-    static func find(_ req: Request) throws -> Future<Card> {
-        let userID = try req.parameters.next(Int.self)
-        let cardID = try req.parameters.next(Int.self)
-
+    private static func find(_ req: Request, userID: Int, cardID: Int) throws -> Future<Card> {
         return Card.query(on: req).filter(\.user_id == userID).filter(\.user_index == cardID).first().unwrap(or: Abort(.badRequest, reason: "No card with ID \(cardID) belonging to user with ID \(userID)."))
     }
 
-    static func update(_ req: Request, updatedCardRequest updatedCard: UpdateCardRequest) throws -> Future<Card> {
-        let _ = try req.requireAuthenticated(User.self)
+    static func find(_ req: Request) throws -> Future<Card> {
+        let (userID, cardID) = try ControllersCommon.extractUserIDAndElementID(req)
 
-        return try find(req).flatMap { originalCard in
-            return Card(id: originalCard.id,
-                        scryfall_id: originalCard.scryfall_id,
-                        play_condition: updatedCard.play_condition ?? originalCard.play_condition,
-                        foil: updatedCard.foil ?? originalCard.foil,
-                        added: originalCard.added,
-                        modified: Date(),
-                        user_id: originalCard.user_id,
-                        user_index: originalCard.user_index)
-                .update(on: req, originalID: originalCard.id)
+        return try find(req, userID: userID, cardID: cardID)
+    }
+
+    static func update(_ req: Request, updatedCardRequest updatedCard: UpdateCardRequest) throws -> Future<Card> {
+        let (userID, cardID) = try ControllersCommon.extractUserIDAndElementIDWithAuthentication(req, failureReason: .notAuthorized)
+
+        return try find(req, userID: userID, cardID: cardID).flatMap { card in
+            card.play_condition = updatedCard.play_condition ?? card.play_condition
+            card.foil = updatedCard.foil ?? card.foil
+            card.modified = Date()
+            return card.update(on: req, originalID: card.id)
         }
     }
 
     static func delete(_ req: Request) throws -> Future<String> {
-        let _ = try req.requireAuthenticated(User.self)
+        _ = try req.requireAuthenticated(User.self)
 
         return try find(req).flatMap { card in
             return card.delete(on: req).map {
