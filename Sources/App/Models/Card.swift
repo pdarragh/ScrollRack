@@ -35,6 +35,12 @@ final class Card: MySQLModel {
 extension Card: Content {}
 extension Card: Parameter {}
 
+extension Card {
+    var collections: Siblings<Card, Collection, CardsToCollectionsPivot> {
+        return siblings()
+    }
+}
+
 struct CreateCard: MySQLMigration {
     static func prepare(on conn: MySQLConnection) -> EventLoopFuture<Void> {
         return MySQLDatabase.create(Card.self, on: conn) { builder in

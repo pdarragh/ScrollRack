@@ -27,6 +27,12 @@ final class Collection: MySQLModel {
 extension Collection: Content {}
 extension Collection: Parameter {}
 
+extension Collection {
+    var cards: Siblings<Collection, Card, CardsToCollectionsPivot> {
+        return siblings()
+    }
+}
+
 struct CreateCollection: MySQLMigration {
     static func prepare(on conn: MySQLConnection) -> EventLoopFuture<Void> {
         return MySQLDatabase.create(Collection.self, on: conn) { builder in

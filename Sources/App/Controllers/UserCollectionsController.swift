@@ -30,10 +30,14 @@ final class UserCollectionsController {
         return Collection.query(on: req).filter(\.user_id == userID).filter(\.user_index == collectionID).first().unwrap(or: Abort(.badRequest, reason: "No collection with ID \(collectionID) belonging to user with ID \(userID)."))
     }
 
-    static func find(_ req: Request) throws -> Future<Collection> {
+    static func find(_ req: Request) throws -> Future<CollectionWithCardsResponse> {
         let (userID, collectionID) = try ControllersCommon.extractUserIDAndElementID(req)
 
-        return try find(req, userID: userID, collectionID: collectionID)
+        return try find(req, userID: userID, collectionID: collectionID).flatMap { collection in
+            try collection.cards.query(on: req).all().map { cards in
+                return CollectionWithCardsResponse(name: collection.name, user_index: collection.user_index, cards: cards)
+            }
+        }
     }
 
     static func update(_ req: Request, updatedCollectionRequest updatedCollection: UpdateCollectionRequest) throws -> Future<Collection> {
@@ -46,9 +50,9 @@ final class UserCollectionsController {
     }
 
     static func delete(_ req: Request) throws -> Future<String> {
-        _ = try req.requireAuthenticated(User.self)
+        let (userID, collectionID) = try ControllersCommon.extractUserIDAndElementIDWithAuthentication(req, failureReason: .notAuthorized)
 
-        return try find(req).flatMap { collection in
+        return try find(req, userID: userID, collectionID: collectionID).flatMap { collection in
             return collection.delete(on: req).map {
                 return "Deleted collection."
             }
@@ -62,4 +66,10 @@ struct CreateCollectionRequest: Content {
 
 struct UpdateCollectionRequest: Content {
     var name: String
+}
+
+struct CollectionWithCardsResponse: Content {
+    var name: String
+    var user_index: Int
+    var cards: [Card]
 }
