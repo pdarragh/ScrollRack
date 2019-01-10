@@ -59,7 +59,7 @@ func buildRoutesForRouter(_ router: Router) throws {
                             }
                         }
 
-                        user.group("deck_folders") { deckFolders in
+                        user.group("folders") { deckFolders in
                             deckFolders.get(use: UserDeckFoldersController.index)
                             deckFolders.post(CreateDeckFolderRequest.self, use: UserDeckFoldersController.create)
 
