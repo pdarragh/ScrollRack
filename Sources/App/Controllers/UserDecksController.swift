@@ -40,7 +40,7 @@ final class UserDecksController {
         let (userID, deckID) = try ControllersCommon.extractUserIDAndElementIDWithAuthentication(req, failureReason: .notAuthorized)
 
         return try find(req, userID: userID, deckID: deckID).flatMap { deck in
-            deck.name = updatedDeck.name
+            deck.name = updatedDeck.new_name
             return deck.update(on: req, originalID: deck.id)
         }
     }
@@ -61,5 +61,5 @@ struct CreateDeckRequest: Content {
 }
 
 struct UpdateDeckRequest: Content {
-    var name: String
+    var new_name: String
 }
