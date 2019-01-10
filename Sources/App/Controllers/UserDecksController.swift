@@ -26,20 +26,20 @@ final class UserDecksController {
         }
     }
 
-    static func find(_ req: Request, userID: Int, deckID: Int) throws -> Future<Deck> {
-        return Deck.query(on: req).filter(\.user_id == userID).filter(\.user_index == deckID).first().unwrap(or: Abort(.badRequest, reason: "No deck with ID \(deckID) belonging to user with ID \(userID)."))
+    static func find(_ req: Request, userID: Int, deckIndex: Int) throws -> Future<Deck> {
+        return Deck.query(on: req).filter(\.user_id == userID).filter(\.user_index == deckIndex).first().unwrap(or: Abort(.badRequest, reason: "No deck with user index \(deckIndex) belonging to user with ID \(userID)."))
     }
 
     static func find(_ req: Request) throws -> Future<Deck> {
-        let (userID, deckID) = try ControllersCommon.extractUserIDAndElementID(req)
+        let (userID, deckIndex) = try ControllersCommon.extractUserIDAndElementIndex(req)
 
-        return try find(req, userID: userID, deckID: deckID)
+        return try find(req, userID: userID, deckIndex: deckIndex)
     }
 
     static func update(_ req: Request, updatedDeckRequest updatedDeck: UpdateDeckRequest) throws -> Future<Deck> {
-        let (userID, deckID) = try ControllersCommon.extractUserIDAndElementIDWithAuthentication(req, failureReason: .notAuthorized)
+        let (userID, deckIndex) = try ControllersCommon.extractUserIDAndElementIndexWithAuthentication(req, failureReason: .notAuthorized)
 
-        return try find(req, userID: userID, deckID: deckID).flatMap { deck in
+        return try find(req, userID: userID, deckIndex: deckIndex).flatMap { deck in
             deck.name = updatedDeck.new_name
             return deck.update(on: req, originalID: deck.id)
         }

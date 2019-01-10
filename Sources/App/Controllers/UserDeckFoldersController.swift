@@ -26,33 +26,33 @@ final class UserDeckFoldersController {
         }
     }
 
-    static func find(_ req: Request, userID: Int, deckFolderID: Int) throws -> Future<DeckFolder> {
-        return DeckFolder.query(on: req).filter(\.user_id == userID).filter(\.user_index == deckFolderID).first().unwrap(or: Abort(.badRequest, reason: "No deck folder with ID \(deckFolderID) belonging to user with ID \(userID)."))
+    static func find(_ req: Request, userID: Int, deckFolderIndex: Int) throws -> Future<DeckFolder> {
+        return DeckFolder.query(on: req).filter(\.user_id == userID).filter(\.user_index == deckFolderIndex).first().unwrap(or: Abort(.badRequest, reason: "No deck folder with user index \(deckFolderIndex) belonging to user with ID \(userID)."))
     }
 
     static func find(_ req: Request) throws -> Future<DeckFolder> {
-        let (userID, deckFolderID) = try ControllersCommon.extractUserIDAndElementID(req)
+        let (userID, deckFolderIndex) = try ControllersCommon.extractUserIDAndElementIndex(req)
 
-        return try find(req, userID: userID, deckFolderID: deckFolderID)
+        return try find(req, userID: userID, deckFolderIndex: deckFolderIndex)
     }
 
     static func update(_ req: Request, updatedDeckFolderRequest updatedDeckFolder: UpdateDeckFolderRequest) throws -> Future<DeckFolder> {
-        let (userID, deckFolderID) = try ControllersCommon.extractUserIDAndElementIDWithAuthentication(req, failureReason: .notAuthorized)
+        let (userID, deckFolderIndex) = try ControllersCommon.extractUserIDAndElementIndexWithAuthentication(req, failureReason: .notAuthorized)
 
-        return try find(req, userID: userID, deckFolderID: deckFolderID).flatMap { deckFolder in
+        return try find(req, userID: userID, deckFolderIndex: deckFolderIndex).flatMap { deckFolder in
             if let newName = updatedDeckFolder.new_name {
                 deckFolder.name = newName
             }
 
-            if let newDeckID = updatedDeckFolder.new_deck_index {
-                _ = try UserDecksController.find(req, userID: userID, deckID: newDeckID).flatMap { deck in
-                    DeckFoldersToDecksPivot(deck_folder_id: deckFolderID, deck_id: deck.id!).save(on: req)
+            if let newDeckIndex = updatedDeckFolder.new_deck_index {
+                _ = try UserDecksController.find(req, userID: userID, deckIndex: newDeckIndex).flatMap { deck in
+                    DeckFoldersToDecksPivot(deck_folder_id: deckFolder.id!, deck_id: deck.id!).save(on: req)
                 }
             }
 
-            if let newChildFolderID = updatedDeckFolder.new_child_folder_index {
-                _ = try find(req, userID: userID, deckFolderID: newChildFolderID).flatMap { childDeckFolder in
-                    DeckFoldersToSubfoldersPivot(parent_folder_id: deckFolderID, child_folder_id: childDeckFolder.id!).save(on: req)
+            if let newChildFolderIndex = updatedDeckFolder.new_child_folder_index {
+                _ = try find(req, userID: userID, deckFolderIndex: newChildFolderIndex).flatMap { childDeckFolder in
+                    DeckFoldersToSubfoldersPivot(parent_folder_id: deckFolder.id!, child_folder_id: childDeckFolder.id!).save(on: req)
                 }
             }
 

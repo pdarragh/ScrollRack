@@ -26,14 +26,14 @@ final class UserCollectionsController {
         }
     }
 
-    private static func find(_ req: Request, userID: Int, collectionID: Int) throws -> Future<Collection> {
-        return Collection.query(on: req).filter(\.user_id == userID).filter(\.user_index == collectionID).first().unwrap(or: Abort(.badRequest, reason: "No collection with ID \(collectionID) belonging to user with ID \(userID)."))
+    private static func find(_ req: Request, userID: Int, collectionIndex: Int) throws -> Future<Collection> {
+        return Collection.query(on: req).filter(\.user_id == userID).filter(\.user_index == collectionIndex).first().unwrap(or: Abort(.badRequest, reason: "No collection with user index \(collectionIndex) belonging to user with ID \(userID)."))
     }
 
     static func find(_ req: Request) throws -> Future<CollectionWithCardsResponse> {
-        let (userID, collectionID) = try ControllersCommon.extractUserIDAndElementID(req)
+        let (userID, collectionIndex) = try ControllersCommon.extractUserIDAndElementIndex(req)
 
-        return try find(req, userID: userID, collectionID: collectionID).flatMap { collection in
+        return try find(req, userID: userID, collectionIndex: collectionIndex).flatMap { collection in
             try collection.cards.query(on: req).all().map { cards in
                 return CollectionWithCardsResponse(name: collection.name, user_index: collection.user_index, cards: cards)
             }
@@ -41,16 +41,16 @@ final class UserCollectionsController {
     }
 
     static func update(_ req: Request, updatedCollectionRequest updatedCollection: UpdateCollectionRequest) throws -> Future<Collection> {
-        let (userID, collectionID) = try ControllersCommon.extractUserIDAndElementIDWithAuthentication(req, failureReason: .notAuthorized)
+        let (userID, collectionIndex) = try ControllersCommon.extractUserIDAndElementIndexWithAuthentication(req, failureReason: .notAuthorized)
 
-        return try find(req, userID: userID, collectionID: collectionID).flatMap { collection in
+        return try find(req, userID: userID, collectionIndex: collectionIndex).flatMap { collection in
             if let newName = updatedCollection.new_name {
                 collection.name = newName
             }
 
-            if let newCardID = updatedCollection.new_card_index {
-                _ = try UserCardsController.find(req, userID: userID, cardID: newCardID).flatMap { card in
-                    CardsToCollectionsPivot(card_id: card.id!, collection_id: collectionID).save(on: req)
+            if let newCardIndex = updatedCollection.new_card_index {
+                _ = try UserCardsController.find(req, userID: userID, cardIndex: newCardIndex).flatMap { card in
+                    CardsToCollectionsPivot(card_id: card.id!, collection_id: collection.id!).save(on: req)
                 }
             }
 
@@ -59,9 +59,9 @@ final class UserCollectionsController {
     }
 
     static func delete(_ req: Request) throws -> Future<String> {
-        let (userID, collectionID) = try ControllersCommon.extractUserIDAndElementIDWithAuthentication(req, failureReason: .notAuthorized)
+        let (userID, collectionIndex) = try ControllersCommon.extractUserIDAndElementIndexWithAuthentication(req, failureReason: .notAuthorized)
 
-        return try find(req, userID: userID, collectionID: collectionID).flatMap { collection in
+        return try find(req, userID: userID, collectionIndex: collectionIndex).flatMap { collection in
             return collection.delete(on: req).map {
                 return "Deleted collection."
             }

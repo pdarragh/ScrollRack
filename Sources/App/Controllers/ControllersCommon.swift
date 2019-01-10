@@ -24,16 +24,16 @@ final class ControllersCommon {
         return user
     }
 
-    static func extractUserIDAndElementID(_ req: Request) throws -> (Int, Int) {
+    static func extractUserIDAndElementIndex(_ req: Request) throws -> (Int, Int) {
         let userID = try extractUserID(req)
-        let elementID = try req.parameters.next(Int.self)
-        return (userID, elementID)
+        let elementIndex = try req.parameters.next(Int.self)
+        return (userID, elementIndex)
     }
 
-    static func extractUserIDAndElementIDWithAuthentication(_ req: Request, failureReason: FailureReason?) throws -> (Int, Int) {
+    static func extractUserIDAndElementIndexWithAuthentication(_ req: Request, failureReason: FailureReason?) throws -> (Int, Int) {
         let user = try extractUserWithAuthentication(req, failureReason: failureReason)
-        let elementID = try req.parameters.next(Int.self)
-        return (user.id!, elementID)
+        let elementIndex = try req.parameters.next(Int.self)
+        return (user.id!, elementIndex)
     }
 }
 

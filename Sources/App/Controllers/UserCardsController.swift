@@ -26,20 +26,20 @@ final class UserCardsController {
         }
     }
 
-    static func find(_ req: Request, userID: Int, cardID: Int) throws -> Future<Card> {
-        return Card.query(on: req).filter(\.user_id == userID).filter(\.user_index == cardID).first().unwrap(or: Abort(.badRequest, reason: "No card with ID \(cardID) belonging to user with ID \(userID)."))
+    static func find(_ req: Request, userID: Int, cardIndex: Int) throws -> Future<Card> {
+        return Card.query(on: req).filter(\.user_id == userID).filter(\.user_index == cardIndex).first().unwrap(or: Abort(.badRequest, reason: "No card with user index \(cardIndex) belonging to user with ID \(userID)."))
     }
 
     static func find(_ req: Request) throws -> Future<Card> {
-        let (userID, cardID) = try ControllersCommon.extractUserIDAndElementID(req)
+        let (userID, cardIndex) = try ControllersCommon.extractUserIDAndElementIndex(req)
 
-        return try find(req, userID: userID, cardID: cardID)
+        return try find(req, userID: userID, cardIndex: cardIndex)
     }
 
     static func update(_ req: Request, updatedCardRequest updatedCard: UpdateCardRequest) throws -> Future<Card> {
-        let (userID, cardID) = try ControllersCommon.extractUserIDAndElementIDWithAuthentication(req, failureReason: .notAuthorized)
+        let (userID, cardIndex) = try ControllersCommon.extractUserIDAndElementIndexWithAuthentication(req, failureReason: .notAuthorized)
 
-        return try find(req, userID: userID, cardID: cardID).flatMap { card in
+        return try find(req, userID: userID, cardIndex: cardIndex).flatMap { card in
             card.play_condition = updatedCard.play_condition ?? card.play_condition
             card.foil = updatedCard.foil ?? card.foil
             card.modified = Date()
