@@ -16,11 +16,11 @@ final class UsersController {
         return token.save(on: req)
     }
 
-    static func index(_ req: Request) throws -> Future<[User.Public]> {
-        return User.query(on: req).decode(data: User.Public.self).all()
+    static func index(_ req: Request) throws -> Future<[SafeUserResponse]> {
+        return User.query(on: req).decode(data: SafeUserResponse.self).all()
     }
 
-    static func create(_ req: Request, newUserRequest user: CreateUserRequest) throws -> Future<User.Public> {
+    static func create(_ req: Request, newUserRequest user: CreateUserRequest) throws -> Future<SafeUserResponse> {
         return User.query(on: req).filter(\.username == user.username).first().flatMap { existingUser in
             guard existingUser == nil else {
                 throw Abort(.badRequest, reason: "A user with the given username already exists.")
@@ -32,16 +32,15 @@ final class UsersController {
 
             let pw_hash = try BCrypt.hash(user.password)
 
-            return User(id: nil, username: user.username, pw_hash: pw_hash, email: user.email).save(on: req).toPublic()
-        }
+            return User(id: nil, username: user.username, pw_hash: pw_hash, email: user.email).save(on: req).toSafeResponse()        }
     }
 
-    static func find(_ req: Request) throws -> Future<User.Public> {
+    static func find(_ req: Request) throws -> Future<SafeUserResponse> {
         let userId = try req.parameters.next(Int.self)
-        return try UsersController.verifyUserIDExists(userId, withRequest: req).toPublic()
+        return try UsersController.verifyUserIDExists(userId, withRequest: req).toSafeResponse()
     }
 
-    static func findFull(_ req: Request) throws -> Future<User> {
+    static func findUnsafe(_ req: Request) throws -> Future<User> {
         let user = try req.requireAuthenticated(User.self)
         guard let userID = user.id else {
             throw Abort(.badRequest, reason: "No user authenticated.")

@@ -31,35 +31,10 @@ final class User: MySQLModel {
         self.next_deck_index = next_deck_index
         self.next_deck_folder_index = next_deck_folder_index
     }
-
-    final class Public: Codable {
-        var id: Int?
-        var username: String
-
-        init(id: Int? = nil, username: String) {
-            self.id = id
-            self.username = username
-        }
-    }
 }
 
 extension User: Content {}
-extension User.Public: Content {}
 extension User: Parameter {}
-
-extension User {
-    func toPublic() -> User.Public {
-        return User.Public(id: id, username: username)
-    }
-}
-
-extension Future where T: User {
-    func toPublic() -> Future<User.Public> {
-        return map(to: User.Public.self) { user in
-            return user.toPublic()
-        }
-    }
-}
 
 extension User: PasswordAuthenticatable {
     static var usernameKey: WritableKeyPath<User, String> {

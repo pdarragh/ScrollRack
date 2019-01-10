@@ -17,7 +17,7 @@ func buildRoutesForRouter(_ router: Router) throws {
 
             v1.group(User.tokenAuthMiddleware()) { v1Auth in
                 // TODO: Remove the /profile endpoint for security.
-                v1Auth.get("profile", use: UsersController.findFull)
+                v1Auth.get("profile", use: UsersController.findUnsafe)
 
                 v1Auth.group("users") { users in
                     users.get(use: UsersController.index)
