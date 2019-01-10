@@ -33,11 +33,7 @@ final class UserCollectionsController {
     static func find(_ req: Request) throws -> Future<CollectionWithCardsResponse> {
         let (userID, collectionIndex) = try ControllersCommon.extractUserIDAndElementIndex(req)
 
-        return try find(req, userID: userID, collectionIndex: collectionIndex).flatMap { collection in
-            try collection.cards.query(on: req).all().map { cards in
-                return CollectionWithCardsResponse(name: collection.name, user_index: collection.user_index, cards: cards)
-            }
-        }
+        return try find(req, userID: userID, collectionIndex: collectionIndex).toResponseWithCards(on: req)
     }
 
     static func update(_ req: Request, updatedCollectionRequest updatedCollection: UpdateCollectionRequest) throws -> Future<Collection> {
@@ -76,10 +72,4 @@ struct CreateCollectionRequest: Content {
 struct UpdateCollectionRequest: Content {
     var new_name: String?
     var new_card_index: Int?
-}
-
-struct CollectionWithCardsResponse: Content {
-    var name: String
-    var user_index: Int
-    var cards: [Card]
 }
