@@ -30,10 +30,10 @@ final class UserDeckFoldersController {
         return DeckFolder.query(on: req).filter(\.user_id == userID).filter(\.user_index == deckFolderIndex).first().unwrap(or: Abort(.badRequest, reason: "No deck folder with user index \(deckFolderIndex) belonging to user with ID \(userID)."))
     }
 
-    static func find(_ req: Request) throws -> Future<DeckFolder> {
+    static func find(_ req: Request) throws -> Future<DeckFolderWithChildrenResponse> {
         let (userID, deckFolderIndex) = try ControllersCommon.extractUserIDAndElementIndex(req)
 
-        return try find(req, userID: userID, deckFolderIndex: deckFolderIndex)
+        return try find(req, userID: userID, deckFolderIndex: deckFolderIndex).toResponseWithChildren(on: req)
     }
 
     static func update(_ req: Request, updatedDeckFolderRequest updatedDeckFolder: UpdateDeckFolderRequest) throws -> Future<DeckFolder> {
@@ -61,9 +61,9 @@ final class UserDeckFoldersController {
     }
 
     static func delete(_ req: Request) throws -> Future<String> {
-        _ = try req.requireAuthenticated(User.self)
+        let (userID, deckFolderIndex) = try ControllersCommon.extractUserIDAndElementIndexWithAuthentication(req, failureReason: .notAuthorized)
 
-        return try find(req).flatMap { deckFolder in
+        return try find(req, userID: userID, deckFolderIndex: deckFolderIndex).flatMap { deckFolder in
             return deckFolder.delete(on: req).map {
                 return "Deleted deck folder."
             }

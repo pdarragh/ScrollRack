@@ -31,6 +31,14 @@ extension DeckFolder {
     var decks: Siblings<DeckFolder, Deck, DeckFoldersToDecksPivot> {
         return siblings()
     }
+
+    var subFolders: Siblings<DeckFolder, DeckFolder, DeckFoldersToSubfoldersPivot> {
+        return childrenSiblings()
+    }
+
+    var superFolders: Siblings<DeckFolder, DeckFolder, DeckFoldersToSubfoldersPivot> {
+        return parentSiblings()
+    }
 }
 
 struct CreateDeckFolder: MySQLMigration {
