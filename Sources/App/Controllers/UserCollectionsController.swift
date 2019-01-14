@@ -15,15 +15,19 @@ final class UserCollectionsController {
         return Collection.query(on: req).filter(\.user_id == userID).all()
     }
 
-    static func create(_ req: Request, newCollectionRequest: CreateCollectionRequest) throws -> Future<Collection> {
-        let user = try ControllersCommon.extractUserWithAuthentication(req, failureReason: .notAuthorized)
-
+    static func createCollectionForUser(_ user: User, withName name: String, on req: Request) throws -> Future<Collection> {
         let index = user.next_collection_index
         user.next_collection_index += 1
 
         return user.save(on: req).flatMap { _ in
-            return Collection(id: nil, name: newCollectionRequest.name, user_id: user.id!, user_index: index).save(on: req)
+            return Collection(id: nil, name: name, user_id: user.id!, user_index: index).save(on: req)
         }
+    }
+
+    static func create(_ req: Request, newCollectionRequest: CreateCollectionRequest) throws -> Future<Collection> {
+        let user = try ControllersCommon.extractUserWithAuthentication(req, failureReason: .notAuthorized)
+
+        return try createCollectionForUser(user, withName: newCollectionRequest.name, on: req)
     }
 
     private static func find(_ req: Request, userID: Int, collectionIndex: Int) throws -> Future<Collection> {

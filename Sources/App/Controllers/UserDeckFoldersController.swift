@@ -15,15 +15,19 @@ final class UserDeckFoldersController {
         return DeckFolder.query(on: req).filter(\.user_id == userID).all()
     }
 
-    static func create(_ req: Request, newDeckFolderRequest: CreateDeckFolderRequest) throws -> Future<DeckFolder> {
-        let user = try ControllersCommon.extractUserWithAuthentication(req, failureReason: .notAuthorized)
-
+    static func createDeckFolderForUser(_ user: User, withName name: String, on req: Request) throws -> Future<DeckFolder> {
         let index = user.next_deck_folder_index
         user.next_deck_folder_index += 1
 
         return user.save(on: req).flatMap { _ in
-            return DeckFolder(id: nil, name: newDeckFolderRequest.name, user_id: user.id!, user_index: index).save(on: req)
+            return DeckFolder(id: nil, name: name, user_id: user.id!, user_index: index).save(on: req)
         }
+    }
+
+    static func create(_ req: Request, newDeckFolderRequest: CreateDeckFolderRequest) throws -> Future<DeckFolder> {
+        let user = try ControllersCommon.extractUserWithAuthentication(req, failureReason: .notAuthorized)
+
+        return try createDeckFolderForUser(user, withName: newDeckFolderRequest.name, on: req)
     }
 
     static func find(_ req: Request, userID: Int, deckFolderIndex: Int) throws -> Future<DeckFolder> {

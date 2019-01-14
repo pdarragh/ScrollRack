@@ -22,17 +22,25 @@ final class UsersController {
 
     static func create(_ req: Request, newUserRequest user: CreateUserRequest) throws -> Future<SafeUserResponse> {
         return User.query(on: req).filter(\.username == user.username).first().flatMap { existingUser in
+            // Ensure username is not already in use.
             guard existingUser == nil else {
                 throw Abort(.badRequest, reason: "A user with the given username already exists.")
             }
-
+            // Ensure passwords matched.
             guard user.password == user.passwordVerification else {
                 throw Abort(.badRequest, reason: "Given passwords did not match.")
             }
-
+            // Generate BCrypt hash for password.
             let pw_hash = try BCrypt.hash(user.password)
-
-            return User(id: nil, username: user.username, pw_hash: pw_hash, email: user.email).save(on: req).toSafeResponse()        }
+            // Create user, default collection, and default deck folder.
+            return User(id: nil, username: user.username, pw_hash: pw_hash, email: user.email).save(on: req).flatMap { newUser in
+                return try UserCollectionsController.createCollectionForUser(newUser, withName: "Default Collection", on: req).flatMap { _ in
+                    return try UserDeckFoldersController.createDeckFolderForUser(newUser, withName: "Default Deck Folder", on: req).map { _ in
+                        return newUser.toSafeResponse()
+                    }
+                }
+            }
+        }
     }
 
     static func find(_ req: Request) throws -> Future<SafeUserResponse> {
