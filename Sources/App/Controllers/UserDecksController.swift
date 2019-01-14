@@ -16,7 +16,7 @@ final class UserDecksController {
     }
 
     static func create(_ req: Request, newDeckRequest: CreateDeckRequest) throws -> Future<Deck> {
-        let user = try ControllersCommon.extractUserWithAuthentication(req, failureReason: .notAuthorized)
+        let user = try ControllersCommon.extractAuthenticatedUser(req, failureReason: .notAuthorized)
 
         let index = user.next_deck_index
         user.next_deck_index += 1
@@ -37,7 +37,7 @@ final class UserDecksController {
     }
 
     static func update(_ req: Request, updatedDeckRequest updatedDeck: UpdateDeckRequest) throws -> Future<Deck> {
-        let (userID, deckIndex) = try ControllersCommon.extractUserIDAndElementIndexWithAuthentication(req, failureReason: .notAuthorized)
+        let (userID, deckIndex) = try ControllersCommon.extractAuthenticatedUserIDAndElementIndex(req, failureReason: .notAuthorized)
 
         return try find(req, userID: userID, deckIndex: deckIndex).flatMap { deck in
             deck.name = updatedDeck.new_name

@@ -25,7 +25,7 @@ final class UserDeckFoldersController {
     }
 
     static func create(_ req: Request, newDeckFolderRequest: CreateDeckFolderRequest) throws -> Future<DeckFolder> {
-        let user = try ControllersCommon.extractUserWithAuthentication(req, failureReason: .notAuthorized)
+        let user = try ControllersCommon.extractAuthenticatedUser(req, failureReason: .notAuthorized)
 
         return try createDeckFolderForUser(user, withName: newDeckFolderRequest.name, on: req)
     }
@@ -41,7 +41,7 @@ final class UserDeckFoldersController {
     }
 
     static func update(_ req: Request, updatedDeckFolderRequest updatedDeckFolder: UpdateDeckFolderRequest) throws -> Future<DeckFolder> {
-        let (userID, deckFolderIndex) = try ControllersCommon.extractUserIDAndElementIndexWithAuthentication(req, failureReason: .notAuthorized)
+        let (userID, deckFolderIndex) = try ControllersCommon.extractAuthenticatedUserIDAndElementIndex(req, failureReason: .notAuthorized)
 
         return try find(req, userID: userID, deckFolderIndex: deckFolderIndex).flatMap { deckFolder in
             if let newName = updatedDeckFolder.new_name {
@@ -65,7 +65,7 @@ final class UserDeckFoldersController {
     }
 
     static func delete(_ req: Request) throws -> Future<String> {
-        let (userID, deckFolderIndex) = try ControllersCommon.extractUserIDAndElementIndexWithAuthentication(req, failureReason: .notAuthorized)
+        let (userID, deckFolderIndex) = try ControllersCommon.extractAuthenticatedUserIDAndElementIndex(req, failureReason: .notAuthorized)
 
         return try find(req, userID: userID, deckFolderIndex: deckFolderIndex).flatMap { deckFolder in
             return deckFolder.delete(on: req).map {

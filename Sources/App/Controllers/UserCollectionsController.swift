@@ -25,7 +25,7 @@ final class UserCollectionsController {
     }
 
     static func create(_ req: Request, newCollectionRequest: CreateCollectionRequest) throws -> Future<Collection> {
-        let user = try ControllersCommon.extractUserWithAuthentication(req, failureReason: .notAuthorized)
+        let user = try ControllersCommon.extractAuthenticatedUser(req, failureReason: .notAuthorized)
 
         return try createCollectionForUser(user, withName: newCollectionRequest.name, on: req)
     }
@@ -41,7 +41,7 @@ final class UserCollectionsController {
     }
 
     static func update(_ req: Request, updatedCollectionRequest updatedCollection: UpdateCollectionRequest) throws -> Future<Collection> {
-        let (userID, collectionIndex) = try ControllersCommon.extractUserIDAndElementIndexWithAuthentication(req, failureReason: .notAuthorized)
+        let (userID, collectionIndex) = try ControllersCommon.extractAuthenticatedUserIDAndElementIndex(req, failureReason: .notAuthorized)
 
         return try find(req, userID: userID, collectionIndex: collectionIndex).flatMap { collection in
             if let newName = updatedCollection.new_name {
@@ -59,7 +59,7 @@ final class UserCollectionsController {
     }
 
     static func delete(_ req: Request) throws -> Future<String> {
-        let (userID, collectionIndex) = try ControllersCommon.extractUserIDAndElementIndexWithAuthentication(req, failureReason: .notAuthorized)
+        let (userID, collectionIndex) = try ControllersCommon.extractAuthenticatedUserIDAndElementIndex(req, failureReason: .notAuthorized)
 
         return try find(req, userID: userID, collectionIndex: collectionIndex).flatMap { collection in
             return collection.delete(on: req).map {

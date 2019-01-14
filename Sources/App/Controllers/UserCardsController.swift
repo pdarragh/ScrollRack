@@ -16,7 +16,7 @@ final class UserCardsController {
     }
 
     static func create(_ req: Request, newCardRequest: CreateCardRequest) throws -> Future<Card> {
-        let user = try ControllersCommon.extractUserWithAuthentication(req, failureReason: .notAuthorized)
+        let user = try ControllersCommon.extractAuthenticatedUser(req, failureReason: .notAuthorized)
 
         let index = user.next_card_index
         user.next_card_index += 1
@@ -37,7 +37,7 @@ final class UserCardsController {
     }
 
     static func update(_ req: Request, updatedCardRequest updatedCard: UpdateCardRequest) throws -> Future<Card> {
-        let (userID, cardIndex) = try ControllersCommon.extractUserIDAndElementIndexWithAuthentication(req, failureReason: .notAuthorized)
+        let (userID, cardIndex) = try ControllersCommon.extractAuthenticatedUserIDAndElementIndex(req, failureReason: .notAuthorized)
 
         return try find(req, userID: userID, cardIndex: cardIndex).flatMap { card in
             card.play_condition = updatedCard.play_condition ?? card.play_condition
