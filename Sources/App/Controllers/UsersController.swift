@@ -44,20 +44,38 @@ final class UsersController {
     }
 
     static func find(_ req: Request) throws -> Future<SafeUserResponse> {
-        let userId = try req.parameters.next(Int.self)
-        return try UsersController.verifyUserIDExists(userId, withRequest: req).toSafeResponse()
+        let (user, _) = try ControllersCommon.extractUserAndID(req)
+        return user.toSafeResponse()
     }
 
-    static func findUnsafe(_ req: Request) throws -> Future<User> {
-        let user = try req.requireAuthenticated(User.self)
-        guard let userID = user.id else {
-            throw Abort(.badRequest, reason: "No user authenticated.")
-        }
-        return User.find(userID, on: req).unwrap(or: Abort(.notFound, reason: "No user with ID: \(userID)."))
+    static func findUnsafe(_ req: Request) throws -> User {
+        return try ControllersCommon.extractAuthenticatedUser(req, failureReason: .notAuthenticated)
     }
 
     static func verifyUserIDExists(_ id: Int, withRequest req: Request) throws -> Future<User> {
         return User.find(id, on: req).unwrap(or: Abort(.notFound, reason: "No user with ID: \(id)."))
+    }
+
+    static func update(_ req: Request, updatedUserRequest: UpdateUserRequest) throws -> Future<SafeUserResponse> {
+        let user = try ControllersCommon.extractAuthenticatedUser(req, failureReason: .notAuthenticated)
+
+        if let newUsername = updatedUserRequest.new_username {
+            _ = User.query(on: req).filter(\.username == newUsername).first().map { existingUser in
+                guard existingUser == nil else {
+                    throw Abort(.badRequest, reason: "A user with the given username already exists.")
+                }
+                user.username = newUsername
+            }
+        }
+
+        if let newPassword = updatedUserRequest.new_password {
+            guard newPassword == updatedUserRequest.new_password_verification else {
+                throw Abort(.badRequest, reason: "Given passwords did not match.")
+            }
+            user.pw_hash = try BCrypt.hash(newPassword)
+        }
+
+        return user.save(on: req).toSafeResponse()
     }
 }
 
@@ -66,4 +84,10 @@ struct CreateUserRequest: Content {
     var password: String
     var passwordVerification: String
     var email: String
+}
+
+struct UpdateUserRequest: Content {
+    var new_username: String?
+    var new_password: String?
+    var new_password_verification: String?
 }
