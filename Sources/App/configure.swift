@@ -18,18 +18,20 @@ public func configure(_ config: inout Config, _ env: inout Environment, _ servic
     try buildRoutesForRouter(router)
     services.register(router, as: Router.self)
 
-    /// Extract the database password from the environment.
-    guard let dbPassword = Environment.get("DB_PASSWORD") else {
-        throw Abort(.internalServerError)
-    }
+    /// Extract the database information from the environment.
+    let dbHostname = Environment.get("DB_HOSTNAME") ?? "localhost"
+    let dbPort = Environment.get("DB_PORT").flatMap { Int($0) } ?? 3306
+    let dbUsername = Environment.get("DB_USERNAME") ?? "scrollrack"
+    let dbPassword = Environment.get("DB_PASSWORD") ?? "scrollrack"
+    let dbName = Environment.get("DB_NAME") ?? "scrollrack"
 
     /// Configure a MySQL database.
     let config = MySQLDatabaseConfig(
-        hostname: "localhost",
-        port: 3306,
-        username: "mtginv",
+        hostname: dbHostname,
+        port: dbPort,
+        username: dbUsername,
         password: dbPassword,
-        database: "mtg_inventory_test",
+        database: dbName,
         capabilities: .default,
         characterSet: .utf8mb4_unicode_ci,
         transport: .unverifiedTLS)
