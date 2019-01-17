@@ -5,8 +5,8 @@ import Vapor
 /// Called before your application initializes.
 public func configure(_ config: inout Config, _ env: inout Environment, _ services: inout Services) throws {
     /// Register providers first.
-    try services.register(MySQLProvider())
     try services.register(AuthenticationProvider())
+    try services.register(FluentMySQLProvider())
 
     /// Register middleware.
     var middlewares = MiddlewareConfig() // Create _empty_ middleware config
