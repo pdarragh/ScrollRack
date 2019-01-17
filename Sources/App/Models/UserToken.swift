@@ -14,28 +14,27 @@ final class UserToken: MySQLModel {
 
     var id: Int?
     var string: String
-    var user_id: User.ID
-    var expires_at: Date?
+    var userID: User.ID
+    var expiresAt: Date?
 
-    init(id: Int? = nil, string: String, user_id: User.ID) {
+    init(id: Int? = nil, string: String, userID: User.ID) {
         self.id = id
         self.string = string
-        self.user_id = user_id
-        self.expires_at = Date.init(timeInterval: 60 * 60 * 5, since: .init())
+        self.userID = userID
+        self.expiresAt = Date.init(timeInterval: 60 * 60 * 5, since: .init())
     }
 
     static func create(userID: User.ID) throws -> UserToken {
         let string = try CryptoRandom().generateData(count: 16).base64EncodedString()
-        return .init(string: string, user_id: userID)
+        return .init(string: string, userID: userID)
     }
 }
 
 extension UserToken: Content {}
-extension UserToken: Parameter {}
 
 extension UserToken {
     var user: Parent<UserToken, User> {
-        return parent(\.user_id)
+        return parent(\.userID)
     }
 }
 
@@ -47,7 +46,7 @@ extension UserToken: Token {
     }
 
     static var userIDKey: WritableKeyPath<UserToken, User.ID> {
-        return \.user_id
+        return \.userID
     }
 }
 
@@ -56,10 +55,10 @@ struct CreateUserToken: MySQLMigration {
         return MySQLDatabase.create(UserToken.self, on: conn) { builder in
             builder.field(for: \.id, isIdentifier: true)
             builder.field(for: \.string)
-            builder.field(for: \.user_id)
-            builder.field(for: \.expires_at)
+            builder.field(for: \.userID)
+            builder.field(for: \.expiresAt)
 
-            builder.reference(from: \.user_id, to: \User.id)
+            builder.reference(from: \.userID, to: \User.id)
         }
     }
 

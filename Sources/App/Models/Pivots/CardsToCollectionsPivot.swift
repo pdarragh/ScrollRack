@@ -14,16 +14,16 @@ final class CardsToCollectionsPivot: MySQLPivot {
     typealias Left = Card
     typealias Right = Collection
 
-    static var leftIDKey: LeftIDKey = \.card_id
-    static var rightIDKey: RightIDKey = \.collection_id
+    static var leftIDKey: LeftIDKey = \.cardID
+    static var rightIDKey: RightIDKey = \.collectionID
 
     var id: Int?
-    var card_id: Int
-    var collection_id: Int
+    var cardID: Int
+    var collectionID: Int
 
-    init(card_id: Int, collection_id: Int) {
-        self.card_id = card_id
-        self.collection_id = collection_id
+    init(cardID: Int, collectionID: Int) {
+        self.cardID = cardID
+        self.collectionID = collectionID
     }
 }
 

@@ -13,19 +13,18 @@ final class Deck: MySQLModel {
 
     var id: Int?
     var name: String
-    var user_id: Int
-    var user_index: Int
+    var userID: Int
+    var userIndex: Int
 
-    init(id: Int? = nil, name: String, user_id: Int, user_index: Int) {
+    init(id: Int? = nil, name: String, userID: Int, userIndex: Int) {
         self.id = id
         self.name = name
-        self.user_id = user_id
-        self.user_index = user_index
+        self.userID = userID
+        self.userIndex = userIndex
     }
 }
 
 extension Deck: Content {}
-extension Deck: Parameter {}
 
 extension Deck {
     var deck_folders: Siblings<Deck, DeckFolder, DeckFoldersToDecksPivot> {
@@ -38,8 +37,8 @@ struct CreateDeck: MySQLMigration {
         return MySQLDatabase.create(Deck.self, on: conn) { builder in
             builder.field(for: \.id, isIdentifier: true)
             builder.field(for: \.name, type: .varchar(32))
-            builder.field(for: \.user_id)
-            builder.field(for: \.user_index)
+            builder.field(for: \.userID)
+            builder.field(for: \.userIndex)
         }
     }
 

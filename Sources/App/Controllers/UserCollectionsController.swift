@@ -12,15 +12,15 @@ final class UserCollectionsController {
     static func index(_ req: Request) throws -> Future<[Collection]> {
         let userID = try ControllersCommon.extractUserID(req)
 
-        return Collection.query(on: req).filter(\.user_id == userID).all()
+        return Collection.query(on: req).filter(\.userID == userID).all()
     }
 
     static func createCollectionForUser(_ user: User, withName name: String, on req: Request) throws -> Future<Collection> {
-        let index = user.next_collection_index
-        user.next_collection_index += 1
+        let index = user.nextCollectionIndex
+        user.nextCollectionIndex += 1
 
         return user.save(on: req).flatMap { _ in
-            return Collection(id: nil, name: name, user_id: user.id!, user_index: index).save(on: req)
+            return Collection(id: nil, name: name, userID: user.id!, userIndex: index).save(on: req)
         }
     }
 
@@ -31,7 +31,7 @@ final class UserCollectionsController {
     }
 
     private static func find(_ req: Request, userID: Int, collectionIndex: Int) throws -> Future<Collection> {
-        return Collection.query(on: req).filter(\.user_id == userID).filter(\.user_index == collectionIndex).first().unwrap(or: Abort(.badRequest, reason: "No collection with user index \(collectionIndex) belonging to user with ID \(userID)."))
+        return Collection.query(on: req).filter(\.userID == userID).filter(\.userIndex == collectionIndex).first().unwrap(or: Abort(.badRequest, reason: "No collection with user index \(collectionIndex) belonging to user with ID \(userID)."))
     }
 
     static func find(_ req: Request) throws -> Future<CollectionWithCardsResponse> {
@@ -50,7 +50,7 @@ final class UserCollectionsController {
 
             if let newCardIndex = updatedCollection.new_card_index {
                 _ = try UserCardsController.find(req, userID: userID, cardIndex: newCardIndex).flatMap { card in
-                    CardsToCollectionsPivot(card_id: card.id!, collection_id: collection.id!).save(on: req)
+                    CardsToCollectionsPivot(cardID: card.id!, collectionID: collection.id!).save(on: req)
                 }
             }
 

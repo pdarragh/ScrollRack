@@ -31,9 +31,9 @@ final class UsersController {
                 throw Abort(.badRequest, reason: "Given passwords did not match.")
             }
             // Generate BCrypt hash for password.
-            let pw_hash = try BCrypt.hash(user.password)
+            let passwordHash = try BCrypt.hash(user.password)
             // Create user, default collection, and default deck folder.
-            return User(id: nil, username: user.username, pw_hash: pw_hash, email: user.email).save(on: req).flatMap { newUser in
+            return User(id: nil, username: user.username, passwordHash: passwordHash, email: user.email).save(on: req).flatMap { newUser in
                 return try UserCollectionsController.createCollectionForUser(newUser, withName: "Default Collection", on: req).flatMap { _ in
                     return try UserDeckFoldersController.createDeckFolderForUser(newUser, withName: "Default Deck Folder", on: req).map { _ in
                         return newUser.toSafeResponse()
@@ -72,7 +72,7 @@ final class UsersController {
             guard newPassword == updatedUserRequest.new_password_verification else {
                 throw Abort(.badRequest, reason: "Given passwords did not match.")
             }
-            user.pw_hash = try BCrypt.hash(newPassword)
+            user.passwordHash = try BCrypt.hash(newPassword)
         }
 
         return user.save(on: req).toSafeResponse()

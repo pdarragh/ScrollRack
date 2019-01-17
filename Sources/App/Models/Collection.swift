@@ -13,19 +13,18 @@ final class Collection: MySQLModel {
 
     var id: Int?
     var name: String
-    var user_id: Int
-    var user_index: Int
+    var userID: Int
+    var userIndex: Int
 
-    init(id: Int? = nil, name: String, user_id: Int, user_index: Int) {
+    init(id: Int? = nil, name: String, userID: Int, userIndex: Int) {
         self.id = id
         self.name = name
-        self.user_id = user_id
-        self.user_index = user_index
+        self.userID = userID
+        self.userIndex = userIndex
     }
 }
 
 extension Collection: Content {}
-extension Collection: Parameter {}
 
 extension Collection {
     var cards: Siblings<Collection, Card, CardsToCollectionsPivot> {
@@ -38,8 +37,8 @@ struct CreateCollection: MySQLMigration {
         return MySQLDatabase.create(Collection.self, on: conn) { builder in
             builder.field(for: \.id, isIdentifier: true)
             builder.field(for: \.name, type: .varchar(32))
-            builder.field(for: \.user_id)
-            builder.field(for: \.user_index)
+            builder.field(for: \.userID)
+            builder.field(for: \.userIndex)
         }
     }
 

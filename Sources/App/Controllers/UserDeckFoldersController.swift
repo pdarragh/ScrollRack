@@ -12,15 +12,15 @@ final class UserDeckFoldersController {
     static func index(_ req: Request) throws -> Future<[DeckFolder]> {
         let userID = try ControllersCommon.extractUserID(req)
 
-        return DeckFolder.query(on: req).filter(\.user_id == userID).all()
+        return DeckFolder.query(on: req).filter(\.userID == userID).all()
     }
 
     static func createDeckFolderForUser(_ user: User, withName name: String, on req: Request) throws -> Future<DeckFolder> {
-        let index = user.next_deck_folder_index
-        user.next_deck_folder_index += 1
+        let index = user.nextDeckFolderIndex
+        user.nextDeckFolderIndex += 1
 
         return user.save(on: req).flatMap { _ in
-            return DeckFolder(id: nil, name: name, user_id: user.id!, user_index: index).save(on: req)
+            return DeckFolder(id: nil, name: name, userID: user.id!, userIndex: index).save(on: req)
         }
     }
 
@@ -31,7 +31,7 @@ final class UserDeckFoldersController {
     }
 
     static func find(_ req: Request, userID: Int, deckFolderIndex: Int) throws -> Future<DeckFolder> {
-        return DeckFolder.query(on: req).filter(\.user_id == userID).filter(\.user_index == deckFolderIndex).first().unwrap(or: Abort(.badRequest, reason: "No deck folder with user index \(deckFolderIndex) belonging to user with ID \(userID)."))
+        return DeckFolder.query(on: req).filter(\.userID == userID).filter(\.userIndex == deckFolderIndex).first().unwrap(or: Abort(.badRequest, reason: "No deck folder with user index \(deckFolderIndex) belonging to user with ID \(userID)."))
     }
 
     static func find(_ req: Request) throws -> Future<DeckFolderWithChildrenResponse> {
@@ -50,13 +50,13 @@ final class UserDeckFoldersController {
 
             if let newDeckIndex = updatedDeckFolder.new_deck_index {
                 _ = try UserDecksController.find(req, userID: userID, deckIndex: newDeckIndex).flatMap { deck in
-                    DeckFoldersToDecksPivot(deck_folder_id: deckFolder.id!, deck_id: deck.id!).save(on: req)
+                    DeckFoldersToDecksPivot(deckFolderID: deckFolder.id!, deckID: deck.id!).save(on: req)
                 }
             }
 
             if let newChildFolderIndex = updatedDeckFolder.new_child_folder_index {
                 _ = try find(req, userID: userID, deckFolderIndex: newChildFolderIndex).flatMap { childDeckFolder in
-                    DeckFoldersToSubfoldersPivot(parent_folder_id: deckFolder.id!, child_folder_id: childDeckFolder.id!).save(on: req)
+                    DeckFoldersToSubfoldersPivot(parentFolderID: deckFolder.id!, childFolderID: childDeckFolder.id!).save(on: req)
                 }
             }
 

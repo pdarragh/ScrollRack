@@ -12,22 +12,22 @@ final class UserCardsController {
     static func index(_ req: Request) throws -> Future<[Card]> {
         let userID = try ControllersCommon.extractUserID(req)
 
-        return Card.query(on: req).filter(\.user_id == userID).all()
+        return Card.query(on: req).filter(\.userID == userID).all()
     }
 
     static func create(_ req: Request, newCardRequest: CreateCardRequest) throws -> Future<Card> {
         let user = try ControllersCommon.extractAuthenticatedUser(req, failureReason: .notAuthorized)
 
-        let index = user.next_card_index
-        user.next_card_index += 1
+        let index = user.nextCardIndex
+        user.nextCardIndex += 1
 
         return user.save(on: req).flatMap { _ in
-            return Card(id: nil, scryfall_id: newCardRequest.scryfall_id, play_condition: newCardRequest.play_condition, foil: newCardRequest.foil, added: Date(), modified: Date(), user_id: user.id!, user_index: index).save(on: req)
+            return Card(id: nil, oracleID: newCardRequest.oracle_id, scryfallID: newCardRequest.scryfall_id, condition: newCardRequest.condition, foil: newCardRequest.foil, userID: user.id!, userIndex: index, extraInfo: newCardRequest.notes).save(on: req)
         }
     }
 
     static func find(_ req: Request, userID: Int, cardIndex: Int) throws -> Future<Card> {
-        return Card.query(on: req).filter(\.user_id == userID).filter(\.user_index == cardIndex).first().unwrap(or: Abort(.badRequest, reason: "No card with user index \(cardIndex) belonging to user with ID \(userID)."))
+        return Card.query(on: req).filter(\.userID == userID).filter(\.userIndex == cardIndex).first().unwrap(or: Abort(.badRequest, reason: "No card with user index \(cardIndex) belonging to user with ID \(userID)."))
     }
 
     static func find(_ req: Request) throws -> Future<Card> {
@@ -40,8 +40,10 @@ final class UserCardsController {
         let (userID, cardIndex) = try ControllersCommon.extractAuthenticatedUserIDAndElementIndex(req, failureReason: .notAuthorized)
 
         return try find(req, userID: userID, cardIndex: cardIndex).flatMap { card in
-            card.play_condition = updatedCard.play_condition ?? card.play_condition
+            card.scryfallID = updatedCard.scryfall_id ?? card.scryfallID
+            card.condition = updatedCard.condition ?? card.condition
             card.foil = updatedCard.foil ?? card.foil
+            card.extraInfo = updatedCard.notes ?? card.extraInfo
             card.modified = Date()
             return card.update(on: req, originalID: card.id)
         }
@@ -59,12 +61,16 @@ final class UserCardsController {
 }
 
 struct CreateCardRequest: Content {
-    var scryfall_id: UUID
-    var play_condition: Int
-    var foil: Bool
+    var oracle_id: UUID
+    var scryfall_id: UUID?
+    var condition: Int?
+    var foil: Bool?
+    var notes: String?
 }
 
 struct UpdateCardRequest: Content {
-    var play_condition: Int?
+    var scryfall_id: UUID?
+    var condition: Int?
     var foil: Bool?
+    var notes: String?
 }

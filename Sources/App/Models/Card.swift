@@ -12,28 +12,31 @@ final class Card: MySQLModel {
     static let entity = "cards"
 
     var id: Int?
-    var scryfall_id: UUID
-    var play_condition: Int
-    var foil: Bool
-    var added: Date
-    var modified: Date
-    var user_id: Int
-    var user_index: Int
+    var oracleID: UUID
+    var scryfallID: UUID?
+    var condition: Int?
+    var foil: Bool?
+    var added: Date?
+    var modified: Date?
+    var userID: Int?
+    var userIndex: Int?
+    var extraInfo: String?
 
-    init(id: Int? = nil, scryfall_id: UUID, play_condition: Int, foil: Bool, added: Date, modified: Date, user_id: Int, user_index: Int) {
+    init(id: Int? = nil, oracleID: UUID, scryfallID: UUID?, condition: Int?, foil: Bool?, userID: Int?, userIndex: Int?, extraInfo: String?) {
         self.id = id
-        self.scryfall_id = scryfall_id
-        self.play_condition = play_condition
+        self.oracleID = oracleID
+        self.scryfallID = scryfallID
+        self.condition = condition
         self.foil = foil
-        self.added = added
-        self.modified = modified
-        self.user_id = user_id
-        self.user_index = user_index
+        self.added = Date()
+        self.modified = Date()
+        self.userID = userID
+        self.userIndex = userIndex
+        self.extraInfo = extraInfo
     }
 }
 
 extension Card: Content {}
-extension Card: Parameter {}
 
 extension Card {
     var collections: Siblings<Card, Collection, CardsToCollectionsPivot> {
@@ -45,13 +48,15 @@ struct CreateCard: MySQLMigration {
     static func prepare(on conn: MySQLConnection) -> EventLoopFuture<Void> {
         return MySQLDatabase.create(Card.self, on: conn) { builder in
             builder.field(for: \.id, isIdentifier: true)
-            builder.field(for: \.scryfall_id)
-            builder.field(for: \.play_condition, type: .tinyint(4))
+            builder.field(for: \.oracleID)
+            builder.field(for: \.scryfallID)
+            builder.field(for: \.condition, type: .tinyint(4))
             builder.field(for: \.foil)
             builder.field(for: \.added, type: .timestamp)
             builder.field(for: \.modified, type: .timestamp)
-            builder.field(for: \.user_id)
-            builder.field(for: \.user_index)
+            builder.field(for: \.userID)
+            builder.field(for: \.userIndex)
+            builder.field(for: \.extraInfo)
         }
     }
 

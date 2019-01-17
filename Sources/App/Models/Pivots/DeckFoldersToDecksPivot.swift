@@ -14,16 +14,16 @@ final class DeckFoldersToDecksPivot: MySQLPivot {
     typealias Left = DeckFolder
     typealias Right = Deck
 
-    static var leftIDKey: LeftIDKey = \.deck_folder_id
-    static var rightIDKey: RightIDKey = \.deck_id
+    static var leftIDKey: LeftIDKey = \.deckFolderID
+    static var rightIDKey: RightIDKey = \.deckID
 
     var id: Int?
-    var deck_folder_id: Int
-    var deck_id: Int
+    var deckFolderID: Int
+    var deckID: Int
 
-    init(deck_folder_id: Int, deck_id: Int) {
-        self.deck_folder_id = deck_folder_id
-        self.deck_id = deck_id
+    init(deckFolderID: Int, deckID: Int) {
+        self.deckFolderID = deckFolderID
+        self.deckID = deckID
     }
 }
 

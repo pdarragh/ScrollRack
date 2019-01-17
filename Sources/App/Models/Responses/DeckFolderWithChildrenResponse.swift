@@ -9,15 +9,15 @@ import Vapor
 
 final class DeckFolderWithChildrenResponse: Content {
     var name: String
-    var user_index: Int
-    var decks: [Deck]
-    var sub_folders: [DeckFolder]
+    var userIndex: Int
+    var childDecks: [Deck]
+    var childDeckFolders: [DeckFolder]
 
-    init(name: String, user_index: Int, decks: [Deck], sub_folders: [DeckFolder]) {
+    init(name: String, userIndex: Int, childDecks: [Deck], childDeckFolders: [DeckFolder]) {
         self.name = name
-        self.user_index = user_index
-        self.decks = decks
-        self.sub_folders = sub_folders
+        self.userIndex = userIndex
+        self.childDecks = childDecks
+        self.childDeckFolders = childDeckFolders
     }
 }
 
@@ -27,7 +27,7 @@ extension Future where T: DeckFolder {
             return try deckFolder.subFolders.query(on: req).all().flatMap { subFolders in
                 return try deckFolder.superFolders.query(on: req).all().flatMap { superFolders in
                     return try deckFolder.decks.query(on: req).all().map { decks in
-                        return DeckFolderWithChildrenResponse(name: deckFolder.name, user_index: deckFolder.user_index, decks: decks, sub_folders: subFolders)
+                        return DeckFolderWithChildrenResponse(name: deckFolder.name, userIndex: deckFolder.userIndex, childDecks: decks, childDeckFolders: subFolders)
                     }
                 }
             }

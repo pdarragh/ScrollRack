@@ -12,22 +12,22 @@ final class UserDecksController {
     static func index(_ req: Request) throws -> Future<[Deck]> {
         let userID = try ControllersCommon.extractUserID(req)
 
-        return Deck.query(on: req).filter(\.user_id == userID).all()
+        return Deck.query(on: req).filter(\.userID == userID).all()
     }
 
     static func create(_ req: Request, newDeckRequest: CreateDeckRequest) throws -> Future<Deck> {
         let user = try ControllersCommon.extractAuthenticatedUser(req, failureReason: .notAuthorized)
 
-        let index = user.next_deck_index
-        user.next_deck_index += 1
+        let index = user.nextDeckIndex
+        user.nextDeckIndex += 1
 
         return user.save(on: req).flatMap { _ in
-            return Deck(id: nil, name: newDeckRequest.name, user_id: user.id!, user_index: index).save(on: req)
+            return Deck(id: nil, name: newDeckRequest.name, userID: user.id!, userIndex: index).save(on: req)
         }
     }
 
     static func find(_ req: Request, userID: Int, deckIndex: Int) throws -> Future<Deck> {
-        return Deck.query(on: req).filter(\.user_id == userID).filter(\.user_index == deckIndex).first().unwrap(or: Abort(.badRequest, reason: "No deck with user index \(deckIndex) belonging to user with ID \(userID)."))
+        return Deck.query(on: req).filter(\.userID == userID).filter(\.userIndex == deckIndex).first().unwrap(or: Abort(.badRequest, reason: "No deck with user index \(deckIndex) belonging to user with ID \(userID)."))
     }
 
     static func find(_ req: Request) throws -> Future<Deck> {

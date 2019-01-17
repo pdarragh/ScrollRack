@@ -14,27 +14,26 @@ final class User: MySQLModel {
 
     var id: Int?
     var username: String
-    var pw_hash: String
+    var passwordHash: String
     var email: String
-    var next_card_index: Int
-    var next_collection_index: Int
-    var next_deck_index: Int
-    var next_deck_folder_index: Int
+    var nextCardIndex: Int
+    var nextCollectionIndex: Int
+    var nextDeckIndex: Int
+    var nextDeckFolderIndex: Int
 
-    init(id: Int? = nil, username: String, pw_hash: String, email: String, next_card_index: Int = 1, next_collection_index: Int = 1, next_deck_index: Int = 1, next_deck_folder_index: Int = 1) {
+    init(id: Int? = nil, username: String, passwordHash: String, email: String, nextCardIndex: Int = 1, nextCollectionIndex: Int = 1, nextDeckIndex: Int = 1, nextDeckFolderIndex: Int = 1) {
         self.id = id
         self.username = username
-        self.pw_hash = pw_hash
+        self.passwordHash = passwordHash
         self.email = email
-        self.next_card_index = next_card_index
-        self.next_collection_index = next_collection_index
-        self.next_deck_index = next_deck_index
-        self.next_deck_folder_index = next_deck_folder_index
+        self.nextCardIndex = nextCardIndex
+        self.nextCollectionIndex = nextCollectionIndex
+        self.nextDeckIndex = nextDeckIndex
+        self.nextDeckFolderIndex = nextDeckFolderIndex
     }
 }
 
 extension User: Content {}
-extension User: Parameter {}
 
 extension User: PasswordAuthenticatable {
     static var usernameKey: WritableKeyPath<User, String> {
@@ -42,7 +41,7 @@ extension User: PasswordAuthenticatable {
     }
 
     static var passwordKey: WritableKeyPath<User, String> {
-        return \.pw_hash
+        return \.passwordHash
     }
 }
 
@@ -55,12 +54,12 @@ struct CreateUser: MySQLMigration {
         return MySQLDatabase.create(User.self, on: conn) { builder in
             builder.field(for: \.id, isIdentifier: true)
             builder.field(for: \.username, type: .varchar(32))
-            builder.field(for: \.pw_hash, type: .binary(32))
+            builder.field(for: \.passwordHash, type: .binary(60))
             builder.field(for: \.email, type: .varchar(320))
-            builder.field(for: \.next_card_index)
-            builder.field(for: \.next_collection_index)
-            builder.field(for: \.next_deck_index)
-            builder.field(for: \.next_deck_folder_index)
+            builder.field(for: \.nextCardIndex)
+            builder.field(for: \.nextCollectionIndex)
+            builder.field(for: \.nextDeckIndex)
+            builder.field(for: \.nextDeckFolderIndex)
 
             builder.unique(on: \.username)
         }
