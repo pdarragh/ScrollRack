@@ -13,16 +13,17 @@ public func configure(_ config: inout Config, _ env: inout Environment, _ servic
     middlewares.use(ErrorMiddleware.self) // Catches errors and converts to HTTP response
     services.register(middlewares)
 
+    /// TODO: Revisit this once key en/decoding strategies are supported on Linux.
     /// FIXME: This doesn't appear to do anything.
-    /// Configure content encoder/decoder.
-    var content = ContentConfig.default()
-    let encoder = JSONEncoder()
-    encoder.keyEncodingStrategy = .convertToSnakeCase
-    content.use(dataEncoder: encoder, for: .json)
-    let decoder = JSONDecoder()
-    decoder.keyDecodingStrategy = .convertFromSnakeCase
-    content.use(dataDecoder: decoder, for: .json)
-    services.register(content)
+//    /// Configure content encoder/decoder.
+//    var content = ContentConfig.default()
+//    let encoder = JSONEncoder()
+//    encoder.keyEncodingStrategy = .convertToSnakeCase
+//    content.use(dataEncoder: encoder, for: .json)
+//    let decoder = JSONDecoder()
+//    decoder.keyDecodingStrategy = .convertFromSnakeCase
+//    content.use(dataDecoder: decoder, for: .json)
+//    services.register(content)
 
     /// Register routes to the router.
     let router = EngineRouter.default()
