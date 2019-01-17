@@ -65,4 +65,9 @@ public func configure(_ config: inout Config, _ env: inout Environment, _ servic
     CardsToCollectionsPivot.defaultDatabase = .mysql
     DeckFoldersToDecksPivot.defaultDatabase = .mysql
     DeckFoldersToSubfoldersPivot.defaultDatabase = .mysql
+
+    /// Configure commands.
+    var commands = CommandConfig.default()
+    commands.useFluentCommands()
+    services.register(commands)
 }
