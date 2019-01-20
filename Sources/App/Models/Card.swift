@@ -12,26 +12,28 @@ final class Card: MySQLModel {
     static let entity = "cards"
 
     var id: Int?
+    var owned: Bool
     var oracleID: UUID
+    var userID: Int
+    var userIndex: Int?
     var scryfallID: UUID?
     var condition: Int?
     var foil: Bool?
     var added: Date?
     var modified: Date?
-    var userID: Int?
-    var userIndex: Int?
     var extraInfo: String?
 
-    init(id: Int? = nil, oracleID: UUID, scryfallID: UUID?, condition: Int?, foil: Bool?, userID: Int?, userIndex: Int?, extraInfo: String?) {
+    init(id: Int? = nil, owned: Bool, oracleID: UUID, userID: Int, userIndex: Int?, scryfallID: UUID?, condition: Int?, foil: Bool?, extraInfo: String?) {
         self.id = id
+        self.owned = owned
         self.oracleID = oracleID
+        self.userID = userID
+        self.userIndex = userIndex
         self.scryfallID = scryfallID
         self.condition = condition
         self.foil = foil
         self.added = Date()
         self.modified = Date()
-        self.userID = userID
-        self.userIndex = userIndex
         self.extraInfo = extraInfo
     }
 }
@@ -48,14 +50,15 @@ struct CreateCard: MySQLMigration {
     static func prepare(on conn: MySQLConnection) -> EventLoopFuture<Void> {
         return MySQLDatabase.create(Card.self, on: conn) { builder in
             builder.field(for: \.id, isIdentifier: true)
+            builder.field(for: \.owned)
             builder.field(for: \.oracleID)
+            builder.field(for: \.userID)
+            builder.field(for: \.userIndex)
             builder.field(for: \.scryfallID)
             builder.field(for: \.condition, type: .tinyint(4))
             builder.field(for: \.foil)
             builder.field(for: \.added, type: .timestamp)
             builder.field(for: \.modified, type: .timestamp)
-            builder.field(for: \.userID)
-            builder.field(for: \.userIndex)
             builder.field(for: \.extraInfo)
         }
     }
